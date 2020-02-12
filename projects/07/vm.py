@@ -18,8 +18,11 @@ def initialize_mem_segs(out_stream):
     out_stream.write("@SP\n")
     out_stream.write("M=D\n")
 
+# BUG: Can't push negative constants
 def gen(in_stream, out_stream):
+    token=0 # This token is a hack to get unique branch names
     for line in in_stream.readlines():
+        token += 1
         stripped = line.strip()
         words = stripped.split(' ')
         if len(words) == 0 or words[0] == '//' or words[0] == '':
@@ -44,48 +47,81 @@ def gen(in_stream, out_stream):
             out_stream.write("A=M-1\n")
             out_stream.write("D=M\n")
             out_stream.write("A=A-1\n")
-            out_stream.write("M=D+M\n")
+            out_stream.write("M=M+D\n")
             out_stream.write("@SP\n")
             out_stream.write("M=M-1")
             continue
         elif words[0] == 'sub':
-            # @SP
-            # A=M-1
-            # D=M
-            # A=A-1
-            # M=D-M
-            # @SP
-            # M=M=1
-            pass
-        elif words[0] == 'gt':
-            pass
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("D=M\n")
+            out_stream.write("A=A-1\n")
+            out_stream.write("M=M-D\n")
+            out_stream.write("@SP\n")
+            out_stream.write("M=M-1")
+            continue
         elif words[0] == 'lt':
-            pass
-            # @SP
-            # A=M-1
-            # D=M
-            # A=A-1
-            # if D and M
+            # Decrement stack pointer
+            out_stream.write("@SP\n")
+            out_stream.write("M=M-1\n")
+            out_stream.write("A=M\n")
+            out_stream.write("D=M\n") # set D to top of stack
+            out_stream.write("A=A-1\n")
+            out_stream.write("D=M-D\n")
+            out_stream.write("@BRANCH_TRUE_%s\n" % token)
+            out_stream.write("D;JLT\n")
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("M=0\n")
+            out_stream.write("@END_BRANCH_%s\n" % token)
+            out_stream.write("0;JMP\n")
+            out_stream.write("(BRANCH_TRUE_%s)\n" % token)
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("M=-1\n")
+            out_stream.write("(END_BRANCH_%s)\n" % token)
+            continue
+        elif words[0] == 'gt':
+            # Decrement stack pointer
+            out_stream.write("@SP\n")
+            out_stream.write("M=M-1\n")
+            out_stream.write("A=M\n")
+            out_stream.write("D=M\n") # set D to top of stack
+            out_stream.write("A=A-1\n")
+            out_stream.write("D=M-D\n")
+            out_stream.write("@BRANCH_TRUE_%s\n" % token)
+            out_stream.write("D;JGT\n")
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("M=0\n")
+            out_stream.write("@END_BRANCH_%s\n" % token)
+            out_stream.write("0;JMP\n")
+            out_stream.write("(BRANCH_TRUE_%s)\n" % token)
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("M=-1\n")
+            out_stream.write("(END_BRANCH_%s)\n" % token)
+            continue
         elif words[0] == 'eq':
             # Decrement stack pointer
             out_stream.write("@SP\n")
             out_stream.write("M=M-1\n")
             out_stream.write("A=M\n")
-            out_stream.write("D=M\n") # set value top of stack
+            out_stream.write("D=M\n") # set D to top of stack
             out_stream.write("A=A-1\n")
             out_stream.write("D=D-M\n")
-            out_stream.write("@BRANCH_TRUE\n")
+            out_stream.write("@BRANCH_TRUE_%s\n" % token)
             out_stream.write("D;JEQ\n")
             out_stream.write("@SP\n")
             out_stream.write("A=M-1\n")
             out_stream.write("M=0\n")
-            out_stream.write("@END_BRANCH\n")
+            out_stream.write("@END_BRANCH_%s\n" % token)
             out_stream.write("0;JMP\n")
-            out_stream.write("(BRANCH_TRUE)\n")
+            out_stream.write("(BRANCH_TRUE_%s)\n" % token)
             out_stream.write("@SP\n")
             out_stream.write("A=M-1\n")
             out_stream.write("M=-1\n")
-            out_stream.write("(END_BRANCH)\n")
+            out_stream.write("(END_BRANCH_%s)\n" % token)
             continue
         elif words[0] == 'neg':
             # @SP
