@@ -123,44 +123,34 @@ def gen(in_stream, out_stream):
             out_stream.write("M=-1\n")
             out_stream.write("(END_BRANCH_%s)\n" % token)
             continue
-        elif words[0] == 'neg':
-            # @SP
-            # A=M-1
-            # M=-M
-            pass
         elif words[0] == 'and':
-            # @SP
-            # A=M-1
-            # D=M
-            # A=A-1
-            # M=D&M
-            # @SP
-            # M=M=1
-            pass
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("D=M\n")
+            out_stream.write("A=A-1\n")
+            out_stream.write("M=D&M\n")
+            out_stream.write("@SP\n")
+            out_stream.write("M=M-1\n")
+            continue
         elif words[0] == 'or':
-            # @SP
-            # A=M-1
-            # D=M
-            # A=A-1
-            # M=D|M
-            # @SP
-            # M=M=1
-            pass
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("D=M\n")
+            out_stream.write("A=A-1\n")
+            out_stream.write("M=D|M\n")
+            out_stream.write("@SP\n")
+            out_stream.write("M=M-1\n")
+            continue
+        elif words[0] == 'neg':
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("M=-M\n")
+            continue
         elif words[0] == 'not':
-            # @SP
-            # A=M-1
-            # M=!M
-            pass
-# add x + y integer
-# sub x - y integer
-# neg -y integer
-# eq x==0 boolean
-# gt x > y boolean
-# lt x < y boolean
-# and x and y boolean (bitwise)
-# or x or y boolean (bitwise)
-# not not x boolean (bitwise)
-
+            out_stream.write("@SP\n")
+            out_stream.write("A=M-1\n")
+            out_stream.write("M=!M\n")
+            continue
 
 def main():
     parser = argparse.ArgumentParser(description="Generate HACK assembly")
@@ -171,7 +161,7 @@ def main():
     out_filename = '.'.join(args.file.split('.')[:-1]) + '.asm'
     in_file = open(args.file, 'r')
     out_file = open(out_filename, 'w')
-
+    initialize_mem_segs(out_file)
     gen(in_file, out_file)
 
 if __name__ == "__main__":

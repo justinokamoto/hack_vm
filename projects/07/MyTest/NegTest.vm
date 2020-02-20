@@ -1,0 +1,4 @@
+push constant 100
+neg
+push constant 100
+add
