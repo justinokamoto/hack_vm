@@ -65,6 +65,7 @@ def gen(in_stream, out_stream):
                 out_stream.write("M=M+1\n")
                 out_stream.write("A=M-1\n")
                 out_stream.write("M=D\n")
+                continue
             elif seg == "pointer":
                 if int(val) not in range(0,2): # if not 0 or 1
                     print("Invalid pointer segment %s" % val)
@@ -78,7 +79,7 @@ def gen(in_stream, out_stream):
                 out_stream.write("M=D\n")
                 continue
             else:
-                print("Invalid segment pop %s" % seg)
+                print("Invalid segment push %s" % seg)
                 exit(1)
         elif words[0] == 'pop':
             seg = words[1]
@@ -135,7 +136,7 @@ def gen(in_stream, out_stream):
                 out_stream.write("A=M\n") # Jump to address stored in temp register
                 out_stream.write("M=D\n") # Set mem to D value
             else:
-                print("Invalid segment push %s" % seg)
+                print("Invalid segment pop %s" % seg)
                 exit(1)
         elif words[0] == 'add':
             out_stream.write("@SP\n")
