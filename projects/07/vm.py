@@ -19,7 +19,7 @@ def initialize_mem_segs(out_stream):
     out_stream.write("M=D\n")
 
 # BUG: Can't push negative constants
-def gen(in_stream, out_stream):
+def gen(in_stream, out_stream, static_token):
     token=0 # This token is a hack to get unique branch names
     for line in in_stream.readlines():
         token += 1
@@ -73,6 +73,15 @@ def gen(in_stream, out_stream):
                 seg_token = "THAT" if int(val) == 1 else "THIS"
                 out_stream.write("@%s\n" % seg_token)
                 out_stream.write("D=M\n") # D stores val in THIS/THAT
+                out_stream.write("@SP\n")
+                out_stream.write("M=M+1\n") # Increment SP
+                out_stream.write("A=M-1\n") # Jump to prev address
+                out_stream.write("M=D\n")
+                continue
+            elif seg == "static":
+                out_stream.write("@%s.%s\n" % (static_token, val))
+
+                out_stream.write("D=M\n")
                 out_stream.write("@SP\n")
                 out_stream.write("M=M+1\n") # Increment SP
                 out_stream.write("A=M-1\n") # Jump to prev address
@@ -135,6 +144,15 @@ def gen(in_stream, out_stream):
                 out_stream.write("@R13\n") # Jump to temp register
                 out_stream.write("A=M\n") # Jump to address stored in temp register
                 out_stream.write("M=D\n") # Set mem to D value
+                continue
+            elif seg == "static":
+                out_stream.write("@SP\n")
+                out_stream.write("M=M-1\n")
+                out_stream.write("A=M\n")
+                out_stream.write("D=M\n")
+                out_stream.write("@%s.%s\n" % (static_token, val))
+                out_stream.write("M=D\n")
+                continue
             else:
                 print("Invalid segment pop %s" % seg)
                 exit(1)
@@ -255,10 +273,13 @@ def main():
 
     in_filename = args.file
     out_filename = '.'.join(args.file.split('.')[:-1]) + '.asm'
+
+    filename_no_ext = args.file.split('.')[-2].split("/").pop()
+
     in_file = open(args.file, 'r')
     out_file = open(out_filename, 'w')
     # initialize_mem_segs(out_file)
-    gen(in_file, out_file)
+    gen(in_file, out_file, filename_no_ext)
 
 if __name__ == "__main__":
     main()
