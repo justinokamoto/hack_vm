@@ -65,6 +65,18 @@ def gen(in_stream, out_stream):
                 out_stream.write("M=M+1\n")
                 out_stream.write("A=M-1\n")
                 out_stream.write("M=D\n")
+            elif seg == "pointer":
+                if int(val) not in range(0,2): # if not 0 or 1
+                    print("Invalid pointer segment %s" % val)
+                    exit(1)
+                seg_token = "THAT" if int(val) == 1 else "THIS"
+                out_stream.write("@%s\n" % seg_token)
+                out_stream.write("D=M\n") # D stores val in THIS/THAT
+                out_stream.write("@SP\n")
+                out_stream.write("M=M+1\n") # Increment SP
+                out_stream.write("A=M-1\n") # Jump to prev address
+                out_stream.write("M=D\n")
+                continue
             else:
                 print("Invalid segment pop %s" % seg)
                 exit(1)
@@ -105,6 +117,23 @@ def gen(in_stream, out_stream):
                 out_stream.write("A=M\n") # Jump to address stored in temp register
                 out_stream.write("M=D\n") # Set mem to D value
                 continue
+            elif seg == "pointer":
+                if int(val) not in range(0,2): # if not 0 or 1
+                    print("Invalid pointer segment %s" % val)
+                    exit(1)
+                seg_token = "THAT" if int(val) == 1 else "THIS"
+                out_stream.write("@%s\n" % seg_token)
+                out_stream.write("D=A\n")
+                out_stream.write("@R13\n")
+                out_stream.write("M=D\n") # @R13 stores address
+
+                out_stream.write("@SP\n")
+                out_stream.write("M=M-1\n") # Decrement SP address
+                out_stream.write("A=M\n") # Jump to SP address
+                out_stream.write("D=M\n") # Store top val of stack
+                out_stream.write("@R13\n") # Jump to temp register
+                out_stream.write("A=M\n") # Jump to address stored in temp register
+                out_stream.write("M=D\n") # Set mem to D value
             else:
                 print("Invalid segment push %s" % seg)
                 exit(1)
@@ -227,7 +256,7 @@ def main():
     out_filename = '.'.join(args.file.split('.')[:-1]) + '.asm'
     in_file = open(args.file, 'r')
     out_file = open(out_filename, 'w')
-    initialize_mem_segs(out_file)
+    # initialize_mem_segs(out_file)
     gen(in_file, out_file)
 
 if __name__ == "__main__":
