@@ -40,8 +40,74 @@ def gen(in_stream, out_stream):
                 out_stream.write("@SP\n")
                 out_stream.write("M=M+1\n")
                 continue
+            elif seg in seg_map:
+                seg_token = seg_map[seg]
+                out_stream.write("@%s\n" % val)
+                out_stream.write("D=A\n")
+                out_stream.write("@%s\n" % seg_token)
+                out_stream.write("A=M\n")
+                out_stream.write("A=A+D\n")
+                out_stream.write("D=M\n") # D stores address
+
+                out_stream.write("@SP\n")
+                out_stream.write("M=M+1\n")
+                out_stream.write("A=M-1\n")
+                out_stream.write("M=D\n")
+                continue
+            elif seg == "temp":
+                out_stream.write("@5\n")
+                out_stream.write("D=A\n")
+                out_stream.write("@%s\n" % val)
+                out_stream.write("A=A+D\n")
+                out_stream.write("D=M\n") # D stores address
+
+                out_stream.write("@SP\n")
+                out_stream.write("M=M+1\n")
+                out_stream.write("A=M-1\n")
+                out_stream.write("M=D\n")
+            else:
+                print("Invalid segment pop %s" % seg)
+                exit(1)
         elif words[0] == 'pop':
-            pass
+            seg = words[1]
+            val = words[2]
+            if seg in seg_map:
+                seg_token = seg_map[seg]
+                out_stream.write("@%s\n" % val)
+                out_stream.write("D=A\n")
+                out_stream.write("@%s\n" % seg_token)
+                out_stream.write("A=M\n")
+                out_stream.write("D=A+D\n")
+                out_stream.write("@R13\n")
+                out_stream.write("M=D\n") # @R13 stores address
+
+                out_stream.write("@SP\n")
+                out_stream.write("M=M-1\n") # Decrement SP address
+                out_stream.write("A=M\n") # Jump to SP address
+                out_stream.write("D=M\n") # Store top val of stack
+                out_stream.write("@R13\n") # Jump to temp register
+                out_stream.write("A=M\n") # Jump to address stored in temp register
+                out_stream.write("M=D\n") # Set mem to D value
+                continue
+            elif seg == "temp":
+                out_stream.write("@5\n")
+                out_stream.write("D=A\n")
+                out_stream.write("@%s\n" % val)
+                out_stream.write("D=A+D\n")
+                out_stream.write("@R13\n")
+                out_stream.write("M=D\n") # @R13 stores address
+
+                out_stream.write("@SP\n")
+                out_stream.write("M=M-1\n") # Decrement SP address
+                out_stream.write("A=M\n") # Jump to SP address
+                out_stream.write("D=M\n") # Store top val of stack
+                out_stream.write("@R13\n") # Jump to temp register
+                out_stream.write("A=M\n") # Jump to address stored in temp register
+                out_stream.write("M=D\n") # Set mem to D value
+                continue
+            else:
+                print("Invalid segment push %s" % seg)
+                exit(1)
         elif words[0] == 'add':
             out_stream.write("@SP\n")
             out_stream.write("A=M-1\n")
