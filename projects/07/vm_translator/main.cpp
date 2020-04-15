@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <string>
 #include <vector>
 #include <sstream>
@@ -20,31 +21,143 @@ enum CommandType {
                   C_CALL
 };
 
-bool isspace(string input) {
-    char c;
-    int i = 0;
-    while (input[i])
-    {
-        c = input[i];
-	if (!isspace(c)) return false;
+map<string, string> segMap;
+
+map<string, string>& getSegMap() {
+    if (segMap.empty()) {
+	segMap.insert(pair<string,string>("local", "LCL"));
+	segMap.insert(pair<string,string>("argument", "ARG"));
+	segMap.insert(pair<string,string>("this", "THIS"));
+	segMap.insert(pair<string,string>("that", "THAT"));
     }
-    return true;
+    return segMap;
 }
 
 class Writer {
 private:
     ofstream& file;
+    string mFilename;
 public:
     Writer(ofstream& f) : file(f) {}
-    void setFilename(string);
+    void setFilename(string filename) {
+	mFilename = filename;
+    }
     void writeArithemtic(string op) {
 	file << op << endl;
     }
     void writePushPop(CommandType type, string seg, int index) {
 	if (type == C_PUSH) {
-	    file << "pop " << seg << " " << index << endl;
-	} else if (type == C_POP) {
-	    file << "pop " << seg << " " << index << endl;
+	    file << "// push " << seg << " " << index << endl;
+	    if (segMap.find(seg) != segMap.end()) {
+		file << "@" << index << endl;
+		file << "D=A" << endl;
+		file << "@" << segMap[seg] << endl;
+		file << "A=M" << endl;
+		file << "A=A+D" << endl;
+		file << "D=M" << endl;
+		file << "@SP" << endl;
+		file << "M=M+1" << endl;
+		file << "A=M-1" << endl;
+		file << "M=D" << endl;
+	    } else if (seg.compare("constant") == 0) {
+		file << "@" << index << endl;
+		file << "D=A" << endl;
+		file << "@SP" << endl;
+		file << "A=M" << endl;
+		file << "M=D" << endl;
+		file << "@SP" << endl;
+		file << "M=M+1" << endl;
+	    } else if (seg.compare("temp") == 0) {
+		file << "@5" << endl;
+		file << "D=A" << endl;
+		file << "@" << index << endl;
+		file << "A=A+D" << endl;
+		file << "D=M" << endl;
+		file << "@SP" << endl;
+		file << "M=M+1" << endl;
+		file << "A=M-1" << endl;
+		file << "M=D" << endl;	
+	    } else if (seg.compare("pointer") == 0) {
+		string seg;
+		if (index == 0) {
+		    seg = "THIS";
+		} else if (index == 1) {
+		    seg = "THAT";
+		} else {
+		    cout << "Invalid push to pointer " << index << endl;
+		    // TODO: Raise exception
+		}
+		file << "@" << seg << endl;
+		file << "D=M" << endl;
+		file << "@SP" << endl;
+		file << "M=M+1" << endl;
+		file << "A=M-1" << endl;
+		file << "M=D" << endl;
+	    } else if (seg.compare("static") == 0) {
+		file << "@" << mFilename << "." << index << endl;
+		file << "D=M" << endl;
+		file << "@SP" << endl;
+		file << "M=M+1" << endl;
+		file << "A=M-1" << endl;
+		file << "M=D" << endl;
+	    } else {
+		cout << "Invalid segment pop " << seg << endl;
+	    }
+	}
+	else if (type == C_POP) {
+	    file << "// pop " << seg << " " << index << endl;
+	    if (segMap.find(seg) != segMap.end()) {
+		file << "@" << index << endl;
+		file << "D=A" << endl;
+		file << "@" << segMap[seg] << endl;
+		file << "A=M" << endl;
+		file << "D=A+D" << endl;
+		file << "@R13" << endl;
+		file << "M=D" << endl;
+		file << "@SP" << endl;
+		file << "M=M-1" << endl;
+		file << "A=M" << endl;
+		file << "D=M" << endl;
+		file << "@R13" << endl;
+		file << "A=M" << endl;
+		file << "M=D" << endl;
+	    } else if (seg.compare("temp") == 0) {
+		file << "@5" << endl;
+		file << "D=A" << endl;
+		file << "@s" << index << endl;
+		file << "D=A+D" << endl;
+		file << "@R13" << endl;
+		file << "M=D" << endl;
+		file << "@SP" << endl;
+		file << "M=M-1" << endl;
+		file << "A=M" << endl;
+		file << "D=M" << endl;
+		file << "@R13" << endl;
+		file << "A=M" << endl;
+		file << "M=D" << endl;
+	    } else if (seg.compare("pointer") == 0) {
+		string segToken = (index == 0) ? "THIS" : "THAT";
+		file << "@" << segToken << endl;
+		file << "D=A" << endl;
+		file << "@R13" << endl;
+		file << "M=D" << endl;
+		file << "@SP" << endl;
+		file << "M=M-1" << endl;
+		file << "A=M" << endl;
+		file << "D=M" << endl;
+		file << "@R13" << endl;
+		file << "A=M" << endl;
+		file << "M=D" << endl;
+	    } else if (seg.compare("static") == 0) {
+		file << "@SP" << endl;
+		file << "M=M-1" << endl;
+		file << "A=M" << endl;
+		file << "D=M" << endl;
+		file << "@" << seg << "." << index << endl;
+		file << "M=D" << endl;
+	    } else {
+		cout << "Invalid segment pop " << seg << endl;
+	    }
 	} else {
 	    cout << "Only push/pop commands allowed here.";
 	    // TODO: Exception
@@ -135,6 +248,17 @@ int main(int argc, char** argv)
     if (inputfile.is_open() && outfile.is_open()) {
         Parser parser = Parser(inputfile);
 	Writer writer = Writer(outfile);
+	// get index of .
+	// copy characters w/o .
+	//
+	string filename;
+	size_t found = string(argv[2]).find('.');
+	if (found != string::npos) {
+	    filename.append(argv[2], found);
+	} else {
+	    filename.append(argv[2]);
+	}
+	writer.setFilename(filename);
         while (true){
             parser.advance();
 	    parser.commandType();
@@ -152,6 +276,7 @@ int main(int argc, char** argv)
             }
         }
         inputfile.close();
+	outfile.close();
     } else {
         cout << "Couldn't open in/out files." << endl;
         return 1;
