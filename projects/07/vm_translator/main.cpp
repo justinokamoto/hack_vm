@@ -23,7 +23,7 @@ enum CommandType {
 
 map<string, string> segMap;
 
-map<string, string>& getSegMap() {
+map<string, string>& createSegMap() {
     if (segMap.empty()) {
 	segMap.insert(pair<string,string>("local", "LCL"));
 	segMap.insert(pair<string,string>("argument", "ARG"));
@@ -37,15 +37,121 @@ class Writer {
 private:
     ofstream& file;
     string mFilename;
+    int counter;
 public:
-    Writer(ofstream& f) : file(f) {}
+    Writer(ofstream& f) : file(f) {
+	counter = 0;
+    }
     void setFilename(string filename) {
 	mFilename = filename;
     }
     void writeArithemtic(string op) {
-	file << op << endl;
+	counter++; // Only do when needed!
+	file << "// " << op << endl;
+	if (op.compare("add") == 0) {
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "D=M" << endl;
+	    file << "A=A-1" << endl;
+	    file << "M=M+D" << endl;
+	    file << "@SP" << endl;
+	    file << "M=M-1" << endl;
+	} else if (op.compare("sub") == 0) {
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "D=M" << endl;
+	    file << "A=A-1" << endl;
+	    file << "M=M-D" << endl;
+	    file << "@SP" << endl;
+	    file << "M=M-1" << endl;
+	} else if (op.compare("lt") == 0) {
+	    file << "@SP" << endl;
+	    file << "M=M-1" << endl;
+	    file << "A=M" << endl;
+	    file << "D=M" << endl;
+	    file << "A=A-1" << endl;
+	    file << "D=M-D" << endl;
+	    file << "@BRANCH_TRUE_" << counter << endl;
+	    file << "D;JLT" << endl;
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=0" << endl;
+	    file << "@END_BRANCH_" << counter << endl;
+	    file << "0;JMP" << endl;
+	    file << "(BRANCH_TRUE_" << counter << ")" << endl;
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=-1" << endl;
+	    file << "(END_BRANCH_" << counter << ")" << endl;
+	} else if (op.compare("gt") == 0) {
+	    file << "@SP" << endl;
+	    file << "M=M-1" << endl;
+	    file << "A=M" << endl;
+	    file << "D=M" << endl;
+	    file << "A=A-1" << endl;
+	    file << "D=M-D" << endl;
+	    file << "@BRANCH_TRUE_" << counter << endl;
+	    file << "D;JGT" << endl;
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=0" << endl;
+	    file << "@END_BRANCH_" << counter << endl;
+	    file << "0;JMP" << endl;
+	    file << "(BRANCH_TRUE_" << counter << ")" << endl;
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=-1" << endl;
+	    file << "(END_BRANCH_" << counter << ")" << endl;
+	} else if (op.compare("eq") == 0) {
+	    file << "@SP" << endl;
+	    file << "M=M-1" << endl;
+	    file << "A=M" << endl;
+	    file << "D=M" << endl;
+	    file << "A=A-1" << endl;
+	    file << "D=D-M" << endl;
+	    file << "@BRANCH_TRUE_" << counter << endl;
+	    file << "D;JEQ" << endl;
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=0" << endl;
+	    file << "@END_BRANCH_" << counter << endl;
+	    file << "0;JMP" << endl;
+	    file << "(BRANCH_TRUE_" << counter << ")" << endl;
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=-1" << endl;
+	    file << "(END_BRANCH_" << counter << ")" << endl;
+	} else if (op.compare("and") == 0) {
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "D=M" << endl;
+	    file << "A=A-1" << endl;
+	    file << "M=D&M" << endl;
+	    file << "@SP" << endl;
+	    file << "M=M-1" << endl;
+	} else if (op.compare("or") == 0) {
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "D=M" << endl;
+	    file << "A=A-1" << endl;
+	    file << "M=D|M" << endl;
+	    file << "@SP" << endl;
+	    file << "M=M-1" << endl;      
+	} else if (op.compare("neg") == 0) {
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=-M" << endl;
+	} else if (op.compare("not") == 0) {
+	    file << "@SP" << endl;
+	    file << "A=M-1" << endl;
+	    file << "M=!M" << endl;
+	} else {
+	    cout << "Mismatched arithmetic operator " << op;
+	    // TODO: Throw exception
+	}
     }
     void writePushPop(CommandType type, string seg, int index) {
+	counter++;
 	if (type == C_PUSH) {
 	    file << "// push " << seg << " " << index << endl;
 	    if (segMap.find(seg) != segMap.end()) {
@@ -124,7 +230,7 @@ public:
 	    } else if (seg.compare("temp") == 0) {
 		file << "@5" << endl;
 		file << "D=A" << endl;
-		file << "@s" << index << endl;
+		file << "@" << index << endl;
 		file << "D=A+D" << endl;
 		file << "@R13" << endl;
 		file << "M=D" << endl;
@@ -153,7 +259,7 @@ public:
 		file << "M=M-1" << endl;
 		file << "A=M" << endl;
 		file << "D=M" << endl;
-		file << "@" << seg << "." << index << endl;
+		file << "@" << mFilename << "." << index << endl;
 		file << "M=D" << endl;
 	    } else {
 		cout << "Invalid segment pop " << seg << endl;
@@ -246,11 +352,10 @@ int main(int argc, char** argv)
     ifstream inputfile (argv[1]);
     ofstream outfile (argv[2]);
     if (inputfile.is_open() && outfile.is_open()) {
+	createSegMap(); // initialize segmap
         Parser parser = Parser(inputfile);
 	Writer writer = Writer(outfile);
-	// get index of .
-	// copy characters w/o .
-	//
+
 	string filename;
 	size_t found = string(argv[2]).find('.');
 	if (found != string::npos) {
