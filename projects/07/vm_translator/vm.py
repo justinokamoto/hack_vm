@@ -163,7 +163,7 @@ def gen(in_stream, out_stream, static_token):
             out_stream.write("A=A-1\n")
             out_stream.write("M=M+D\n")
             out_stream.write("@SP\n")
-            out_stream.write("M=M-1")
+            out_stream.write("M=M-1\n")
             continue
         elif words[0] == 'sub':
             out_stream.write("@SP\n")
@@ -172,7 +172,7 @@ def gen(in_stream, out_stream, static_token):
             out_stream.write("A=A-1\n")
             out_stream.write("M=M-D\n")
             out_stream.write("@SP\n")
-            out_stream.write("M=M-1")
+            out_stream.write("M=M-1\n")
             continue
         elif words[0] == 'lt':
             # Decrement stack pointer
