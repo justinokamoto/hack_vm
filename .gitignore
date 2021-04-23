@@ -1,1 +1,5 @@
 tools/
+.DS_Store
+*.asm
+*.out
+.vscode
