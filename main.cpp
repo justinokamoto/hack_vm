@@ -328,25 +328,38 @@ public:
 	}
 	void writeInit(CommandType type, string seg, int index)
 	{
+		file << "// " << endl;
 	}
 	void writeLabel(CommandType type, string label)
 	{
-		file << "@" << label << endl;
+		file << "// label " << label << endl;
+		file << "(" << label << ")" << endl;
 	}
 	void writeGoto(CommandType type, string seg, int index)
 	{
+		file << "// " << endl;
 	}
-	void writeIf(CommandType type, string seg, int index)
+	void writeIf(CommandType type, string label)
 	{
+		file << "// if-goto " << label << endl;
+		file << "@SP" << endl; // Set A to SP
+		file << "M=M-1" << endl; // Get recent SP mem address
+		file << "A=M" << endl; // Set memory to recent SP mem address
+		file << "D=M" << endl; // Set D register to M
+		file << "@" << label << endl;
+		file << "D;JGT" << endl;
 	}
 	void writeCall(CommandType type, string seg, int index)
 	{
+		file << "// " << endl;
 	}
 	void writeReturn(CommandType type, string seg, int index)
 	{
+		file << "// " << endl;
 	}
 	void writeFunction(string functionName, int numArgs)
 	{
+		file << "// " << endl;
 		// TODO: Add function to map -> line and check if exists already?
 
 		// Create label
@@ -444,6 +457,10 @@ public:
 		{
 			c = C_LABEL;
 		}
+		else if (mCommand.compare("if-goto") == 0)
+		{
+			c = C_IF;
+		}
 		else
 		{
 			c = C_GOTO;
@@ -511,6 +528,10 @@ int main(int argc, char **argv)
 			else if (parser.commandType() == C_LABEL)
 			{
 				writer.writeLabel(parser.commandType(), parser.arg1());
+			}
+			else if (parser.commandType() == C_IF)
+			{
+				writer.writeIf(parser.commandType(), parser.arg1());
 			}
 			else if (parser.commandType() == C_RETURN)
 			{
