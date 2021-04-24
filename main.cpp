@@ -390,10 +390,19 @@ public:
 			else if (words[0].compare("//") == 0) // comment
 				return advance();
 			else if (words.size() > 3)
-				cout << "Cannot have " << words.size() << "arguments." << endl;
+			{
+				if (words[1].compare("//") != 0 &&
+					words[2].compare("//") != 0 &&
+					words[3].compare("//") != 0) // invalid
+					cout << "Line \"" << l << "\" has too many args." << endl;
+			}
 			mCommand = words[0];
-			mArg1 = words[1];
-			mArg2 = (words.size() == 3) ? stoi(words[2]) : 0;
+			mArg1 = "";
+			mArg2 = 0;
+			if (words.size() > 1 && words[1].compare("//") != 0)
+				mArg1 = words[1];
+			if (words.size() > 2 && words[2].compare("//") != 0)
+				mArg2 = stoi(words[2]);
 		}
 	}
 	CommandType commandType()
