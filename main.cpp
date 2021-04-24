@@ -329,8 +329,9 @@ public:
 	void writeInit(CommandType type, string seg, int index)
 	{
 	}
-	void writeLabel(CommandType type, string seg, int index)
+	void writeLabel(CommandType type, string label)
 	{
+		file << "@" << label << endl;
 	}
 	void writeGoto(CommandType type, string seg, int index)
 	{
@@ -430,6 +431,10 @@ public:
 		{
 			c = C_CALL;
 		}
+		else if (mCommand.compare("label") == 0)
+		{
+			c = C_LABEL;
+		}
 		else
 		{
 			c = C_GOTO;
@@ -493,6 +498,10 @@ int main(int argc, char **argv)
 			else if (parser.commandType() == C_PUSH || parser.commandType() == C_POP)
 			{
 				writer.writePushPop(parser.commandType(), parser.arg1(), parser.arg2());
+			}
+			else if (parser.commandType() == C_LABEL)
+			{
+				writer.writeLabel(parser.commandType(), parser.arg1());
 			}
 			else if (parser.commandType() == C_RETURN)
 			{
