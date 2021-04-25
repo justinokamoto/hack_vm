@@ -335,9 +335,11 @@ public:
 		file << "// label " << label << endl;
 		file << "(" << label << ")" << endl;
 	}
-	void writeGoto(CommandType type, string seg, int index)
+	void writeGoto(CommandType type, string label)
 	{
-		file << "// " << endl;
+		file << "// goto " << label << endl;
+		file << "@" << label << endl;
+		file << "0;JMP" << endl;
 	}
 	void writeIf(CommandType type, string label)
 	{
@@ -461,6 +463,10 @@ public:
 		{
 			c = C_IF;
 		}
+		else if (mCommand.compare("goto") == 0)
+		{
+			c = C_GOTO;
+		}
 		else
 		{
 			c = C_GOTO;
@@ -532,6 +538,10 @@ int main(int argc, char **argv)
 			else if (parser.commandType() == C_IF)
 			{
 				writer.writeIf(parser.commandType(), parser.arg1());
+			}
+			else if (parser.commandType() == C_GOTO)
+			{
+				writer.writeGoto(parser.commandType(), parser.arg1());
 			}
 			else if (parser.commandType() == C_RETURN)
 			{
