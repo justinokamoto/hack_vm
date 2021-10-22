@@ -1,7 +1,0 @@
-push constant 5
-push constant 5
-eq // stack will be -1
-push constant 0
-gt // stack will be 0
-push constant 1 // can't push negative constants
-lt

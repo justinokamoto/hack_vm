@@ -1,5 +1,0 @@
-push constant 170 // 1010 1010
-push constant 245 // 1111 0101
-or                // 0101 1111 (95)
-push constant 95
-or                // 0000 0000

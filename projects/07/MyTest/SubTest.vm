@@ -1,8 +1,0 @@
-push constant 101
-push constant 101
-sub
-push constant 50
-push constant 10
-sub
-push constant 40
-sub

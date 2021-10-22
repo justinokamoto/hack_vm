@@ -1,4 +1,0 @@
-push constant 170 // 1010 1010
-not               // 0101 0101 (-170 w/ 2's compliment)
-push constant 171
-add

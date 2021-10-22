@@ -1,3 +1,0 @@
-push constant 175 // 1010 1111
-push constant 245 // 1111 0101
-and               // 1010 0101 (165)
