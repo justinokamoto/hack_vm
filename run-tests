@@ -1,0 +1,19 @@
+#!/bin/bash
+# TODO: Integrate wth CMake soon
+run_test () {
+    ./build/vm_translator $1.vm $1.asm
+    ./tools/CPUEmulator.sh $1.tst    
+}
+
+echo "Basic Test..."
+run_test ./projects/07/MemoryAccess/BasicTest/BasicTest
+echo "Pointer Test..."
+run_test ./projects/07/MemoryAccess/PointerTest/PointerTest
+echo "Static Test..."
+run_test ./projects/07/MemoryAccess/StaticTest/StaticTest
+echo "Simple Add Test..."
+run_test ./projects/07/StackArithmetic/SimpleAdd/SimpleAdd
+echo "Stack Test..."
+run_test ./projects/07/StackArithmetic/StackTest/StackTest
+echo "Fibonacci Element Test..."
+run_test ./projects/08/FunctionCalls/FibonacciElement/FibonacciElement

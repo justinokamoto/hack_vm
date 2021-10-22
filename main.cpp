@@ -326,6 +326,7 @@ public:
 			// TODO: Exception
 		}
 	}
+	// TODO: Most of these don't need CommandType args
 	void writeInit(CommandType type, string seg, int index)
 	{
 		file << "// " << endl;
@@ -361,9 +362,8 @@ public:
 	}
 	void writeFunction(string functionName, int numArgs)
 	{
-		file << "// " << endl;
+		file << "// function " << functionName << " " << numArgs << endl;
 		// TODO: Add function to map -> line and check if exists already?
-
 		// Create label
 		file << "@" << functionName << endl;
 		// push to argument mem stack?
@@ -467,6 +467,10 @@ public:
 		{
 			c = C_GOTO;
 		}
+		else if (mCommand.compare("function") == 0)
+		{
+			c = C_FUNCTION;
+		}
 		else
 		{
 			c = C_GOTO;
@@ -549,7 +553,7 @@ int main(int argc, char **argv)
 			}
 			else if (parser.commandType() == C_FUNCTION)
 			{
-				// TODO
+				writer.writeFunction(parser.arg1(), parser.arg2());
 			}
 			else if (parser.commandType() == C_CALL)
 			{
