@@ -6,4 +6,4 @@ project(vm_translator LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(vm_translator main.cpp)
+add_executable(vm_translator src/main.cpp src/writer.cpp)
