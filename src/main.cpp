@@ -41,24 +41,40 @@ public:
 			{
 				words.push_back(l);
 			}
+            // Validations
 			if (words.size() == 0) // empty line
 				return advance();
 			else if (words[0].compare("//") == 0) // comment
 				return advance();
 			else if (words.size() > 3)
 			{
+                // If 4 words exist (all non-comments) that's an error
 				if (words[1].compare("//") != 0 &&
 					words[2].compare("//") != 0 &&
-					words[3].compare("//") != 0) // invalid
+					words[3].compare("//") != 0)
 					cout << "Line \"" << l << "\" has too many args." << endl;
 			}
+            // Command is valid, now parse our args
 			mCommand = words[0];
 			mArg1 = "";
 			mArg2 = 0;
-			if (words.size() > 1 && words[1].compare("//") != 0)
-				mArg1 = words[1];
-			if (words.size() > 2 && words[2].compare("//") != 0)
-				mArg2 = stoi(words[2]);
+
+            // If single word, return
+            if (words.size() == 1)
+                return;
+            // If comment after single word, return
+            if (words[1].compare("//") == 0)
+                return;
+
+            mArg1 = words[1];
+            // If two words, return
+            if (words.size() == 2)
+                return;
+            // If comment after two words, return
+            if (words[2].compare("//") == 0)
+                return;
+
+            mArg2 = stoi(words[2]);
 		}
 	}
 	CommandType commandType()
