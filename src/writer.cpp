@@ -404,7 +404,6 @@ void Writer::writeCall(string functionName, int numArgs)
 }
 void Writer::writeReturn(string seg, int index)
 {
-    // TODO: Use @frame variable?
     // TODO: Use segMap instead of creating vetor?
 
     // Store the return value at ARG (going to be new SP location)
@@ -416,16 +415,17 @@ void Writer::writeReturn(string seg, int index)
     file << "A=M" << endl;
     file << "M=D" << endl;
 
-    // TODO: Reset SP
+    // Reset SP
     file << "@ARG" << endl; // Set A to ARG ptr
     file << "D=M" << endl;  // Set D to ARG addr
     file << "@SP" << endl;  // Set A to SP ptr
-    file << "A=M" << endl;  // Set A to SP addr
-    file << "M=D+1" << endl;  // Set M to ARG addr + 1
+    file << "M=D+1" << endl; // Increment SP ptr to ARG ptr + 1
 
-    // Store LCL in D (frame start)
+    // Store LCL in @frame variable
     file << "@LCL" << endl;
     file << "D=M" << endl;
+    file << "@frame" << endl;
+    file << "M=D" << endl;
     // Walk back and restore all memory segments
     vector<std::string> memSegs;
     memSegs.push_back("THAT");
@@ -433,15 +433,22 @@ void Writer::writeReturn(string seg, int index)
     memSegs.push_back("ARG");
     memSegs.push_back("LCL");
     for (std::string seg : memSegs) {
-        file << "D=D-1" << endl;    // Walk D back
-        file << "@" << seg << endl; // Set A to memory segment ptr
-        file << "A=M" << endl;      // Set A to memory segment
-        file << "M=D" << endl;      // Set memory segment to D
+        // Walk frame back
+        file << "@frame" << endl;
+        file << "M=M-1" << endl;
+        // Store caller memory segment addr in D
+        file << "A=M" << endl;
+        file << "D=M" << endl;
+        // Set memory segment to D
+        file << "@" << seg << endl;
+        file << "M=D" << endl;
     }
-    file << "D=D-1" << endl; // Walk D back
-    file << "A=D" << endl;   // Set A to returnAddr ptr
-    file << "A=M" << endl;   // Set A to returnAddr
-    file << "0;JMP" << endl; // Jump to returnAddr
+    // Walk frame back
+    file << "@frame" << endl;
+    file << "M=M-1" << endl;
+    // Load return address and jump to it
+    file << "A=M" << endl;
+    file << "0;JMP" << endl;
 }
 
 // TODO: Add function to map -> line and check if exists already?
