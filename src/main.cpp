@@ -8,6 +8,25 @@
 #include <sstream>
 #include "writer.hpp"
 #include "command_type.hpp"
+#include <execinfo.h>
+
+void print_trace (void)
+{
+  void *array[10];
+  char **strings;
+  int size, i;
+
+  size = backtrace (array, 10);
+  strings = backtrace_symbols (array, size);
+  if (strings != NULL)
+  {
+
+    printf ("Obtained %d stack frames.\n", size);
+    for (i = 0; i < size; i++)
+      printf ("%s\n", strings[i]);
+  }
+  free (strings);
+}
 
 using namespace std;
 
@@ -205,7 +224,7 @@ int main(int argc, char **argv)
 			}
 			else if (parser.commandType() == C_RETURN)
 			{
-				// TODO
+                writer.writeReturn(parser.arg1(), parser.arg2());
 			}
 			else if (parser.commandType() == C_FUNCTION)
 			{
@@ -213,7 +232,7 @@ int main(int argc, char **argv)
 			}
 			else if (parser.commandType() == C_CALL)
 			{
-				// TODO
+                writer.writeCall(parser.arg1(), parser.arg2());
 			}
 			else
 			{

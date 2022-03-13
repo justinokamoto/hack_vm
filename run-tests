@@ -15,5 +15,9 @@ echo "Simple Add Test..."
 run_test ./projects/07/StackArithmetic/SimpleAdd/SimpleAdd
 echo "Stack Test..."
 run_test ./projects/07/StackArithmetic/StackTest/StackTest
-echo "Fibonacci Element Test..."
-run_test ./projects/08/FunctionCalls/FibonacciElement/FibonacciElement
+echo "Simple Function Test..."
+run_test ./projects/08/FunctionCalls/SimpleFunction/SimpleFunction
+
+# echo "Fibonacci Element Test..."
+# Make this test runner work better
+# ./build/vm_translator ./projects/08/FunctionCalls/FibonacciElement/Main.vm ./projects/08/FunctionCalls/FibonacciElement/Main.asm
