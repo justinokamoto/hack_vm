@@ -343,15 +343,28 @@ void Writer::writeCall(string functionName, int numArgs)
     // - push ARG addr to stack
     // - push THIS addr to stack
     // - push THAT addr to stack
-    // - reposition SP for g (SP - nargs - 5)
-    // - reposition LCL to SP
-    // - goto g
+    // - Reposition ARG
+    // - Reposition LCL
+    // - Jump to function
+    // NOTE: callee will offset SP to LCL + num locals
     file << "// call " << functionName << numArgs << endl;
 
     // Push return addr, LCL addr, ARG addr, THIS addr, and THAT addr
     // to stack.
+
+    std::string ret_addr = "ret_addr_" + to_string(counter);
+    file << "//   push @" << ret_addr << " to stack " << endl;
+    // Store addr in D
+    file << "@" << ret_addr << endl;
+    file << "D=A" << endl;
+    // Advance SP
+    file << "@SP" << endl;
+    file << "M=M+1" << endl;
+    // Set prev SP value to D
+    file << "A=M-1" << endl;
+    file << "M=D" << endl;
+
     vector<std::string> ret_addrs;
-    ret_addrs.push_back("ret_addr_" + to_string(counter));
     ret_addrs.push_back("LCL");
     ret_addrs.push_back("ARG");
     ret_addrs.push_back("THIS");
@@ -372,17 +385,17 @@ void Writer::writeCall(string functionName, int numArgs)
     // Reposition LCL
     // Essentially accomplishing LCL = SP
     file << "   // Reposition LCL (LCL=SP)" << endl;
-    file << "@SP" << endl; // Set A to SP
-    file << "D=A" << endl; // Set D to A
-    file << "@LCL" << endl; // Set A to LCL
-    file << "M=D" << endl; // Set LCL mem addr to SP
+    file << "@SP" << endl;
+    file << "D=M" << endl;
+    file << "@LCL" << endl;
+    file << "M=D" << endl;
 
-    // Reposition SP for g
-    // Essentially accomplishing ARG = SP - nargs - 5
+    // Reposition ARG
+    // ARG = SP - nargs - 5
     file << "   // Reposition ARG (ARG=SP-nargs-5)" << endl;
     // Load SP and store to D
     file << "@SP" << endl;
-    file << "D=A" << endl;
+    file << "D=M" << endl;
     // Load 5 and store to D
     file << "@5" << endl;
     file << "D=D-A" << endl;
@@ -462,7 +475,9 @@ void Writer::writeFunction(string functionName, int numLocals)
     file << "@" << numLocals << endl;
     file << "D=A" << endl;
 
-    // Init LCL segment values to 0
+    // Advance SP (caller keeps SP and LCL at the same position)
+    // SP = SP + numLocals
+    // Initializes local variables to 0 as SP advances
     file << "  // Init LCL segment values to 0" << endl;
     file << "@BRANCH_INIT_LOCAL_" << functionName << endl;
     file << "D;JGT" << endl;
