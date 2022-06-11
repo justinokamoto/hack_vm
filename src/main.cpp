@@ -222,6 +222,8 @@ int main(int argc, char **argv)
 			filename.append(argv[2]);
 		}
 		writer.setFilename(filename);
+        // Conditionally bootstrap?
+        writer.writeBootstrap();
 		while (true)
 		{
 			parser.advance();
@@ -266,6 +268,7 @@ int main(int argc, char **argv)
 			{
 				// TODO: Exception
 				cout << "Unsupported command type." << endl;
+                return 1;
 			}
 		}
 		inputfile.close();

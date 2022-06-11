@@ -348,10 +348,6 @@ void Writer::writeCall(string functionName, int numArgs)
     // - goto g
     file << "// call " << functionName << numArgs << endl;
 
-    // Create label to mark current addr in execution
-    // Better way to get addr of current mem executing besides label?
-    file << "(" << "ret_addr_" << counter << ")" << endl; // Make label based on global instruction counter (TODO: Remove this hack)
-
     // Push return addr, LCL addr, ARG addr, THIS addr, and THAT addr
     // to stack.
     vector<std::string> ret_addrs;
@@ -401,6 +397,10 @@ void Writer::writeCall(string functionName, int numArgs)
     file << "   // Call function" << endl;
     file << "@" << functionName << endl;
     file << "0;JMP" << endl;
+    // Create label to mark current addr in execution
+    // Better way to get addr of current mem executing besides label?
+    file << "(" << "ret_addr_" << counter << ")" << endl; // Make label based on global instruction counter (TODO: Remove this hack)
+
 }
 void Writer::writeReturn(string seg, int index)
 {
