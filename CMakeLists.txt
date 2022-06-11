@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(vm_translator LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(vm_translator src/main.cpp src/writer.cpp)

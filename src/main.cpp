@@ -1,5 +1,6 @@
 // TODO: Try step debugging to see how to do this for larger programs
 // See what we can remove here
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <map>
@@ -9,6 +10,7 @@
 #include "writer.hpp"
 #include "command_type.hpp"
 #include <execinfo.h>
+#include <filesystem>
 
 void print_trace (void)
 {
@@ -169,17 +171,43 @@ public:
 	}
 };
 
+// TODO: Better management of file handles
 int main(int argc, char **argv)
-{
+{    
+    // TODO: Validate one is Main.vm!
+    // TODO: Validate one has main function!
+
 	if (argc != 3)
 	{
 		cout << "Only 2 arguments allowed." << endl;
 		return 1;
 	}
-	ifstream inputfile(argv[1]);
-	ofstream outfile(argv[2]);
-	if (inputfile.is_open() && outfile.is_open())
-	{
+
+    // TODO: [improvement] make more efficient
+    std::vector<string> in_filenames;
+    if (std::filesystem::is_directory(argv[1])) {
+        for (std::filesystem::path const& entry : std::filesystem::directory_iterator(argv[1])) {
+            if (entry.extension().compare(".vm") == 0)
+                in_filenames.push_back(entry);
+        }
+    } else {
+        in_filenames.push_back(argv[1]);
+    }
+
+    ofstream outfile(argv[2]);
+    if (!outfile.is_open()) {
+        std::cerr << "Could not open output file " << argv[2] << std::endl;
+        return 1;
+    }
+
+    for (auto const& in_filename : in_filenames) {
+        ifstream inputfile(in_filename);
+        if (!inputfile.is_open()) {
+            std::cerr << "Could not open input file " << in_filename << endl;
+            outfile.close();
+            return 1;
+        }
+
 		Parser parser = Parser(inputfile);
 		Writer writer = Writer(outfile);
 
@@ -241,12 +269,8 @@ int main(int argc, char **argv)
 			}
 		}
 		inputfile.close();
-		outfile.close();
-	}
-	else
-	{
-		cout << "Couldn't open in/out files." << endl;
-		return 1;
-	}
+    }
+
+    outfile.close();
 	return 0;
 }
