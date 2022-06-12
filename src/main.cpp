@@ -200,6 +200,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    Writer writer = Writer(outfile); // Define here so `counter` isn't reset (TODO: global counter)
+    // Conditionally bootstrap? (add option for this)
+    // writer.writeBootstrap();
+
     for (auto const& in_filename : in_filenames) {
         ifstream inputfile(in_filename);
         if (!inputfile.is_open()) {
@@ -209,7 +213,6 @@ int main(int argc, char **argv)
         }
 
 		Parser parser = Parser(inputfile);
-		Writer writer = Writer(outfile);
 
 		string filename;
 		size_t found = string(argv[2]).find('.');
@@ -222,8 +225,6 @@ int main(int argc, char **argv)
 			filename.append(argv[2]);
 		}
 		writer.setFilename(filename);
-        // Conditionally bootstrap?
-        writer.writeBootstrap();
 		while (true)
 		{
 			parser.advance();

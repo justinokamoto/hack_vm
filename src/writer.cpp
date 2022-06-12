@@ -347,15 +347,15 @@ void Writer::writeCall(string functionName, int numArgs)
     // - Reposition LCL
     // - Jump to function
     // NOTE: callee will offset SP to LCL + num locals
-    file << "// call " << functionName << numArgs << endl;
+    file << "// call " << functionName << " " << numArgs << endl;
 
     // Push return addr, LCL addr, ARG addr, THIS addr, and THAT addr
     // to stack.
+    std::string ret_label = "ret_addr_" + to_string(retrieveCounter());
 
-    std::string ret_addr = "ret_addr_" + to_string(counter);
-    file << "//   push @" << ret_addr << " to stack " << endl;
+    file << "//   push @" << ret_label << " to stack " << endl;
     // Store addr in D
-    file << "@" << ret_addr << endl;
+    file << "@" << ret_label << endl;
     file << "D=A" << endl;
     // Advance SP
     file << "@SP" << endl;
@@ -407,25 +407,25 @@ void Writer::writeCall(string functionName, int numArgs)
     file << "M=D" << endl;
 
     // call function
-    file << "   // Call function" << endl;
+    file << "   // Jump to function address" << endl;
     file << "@" << functionName << endl;
     file << "0;JMP" << endl;
     // Create label to mark current addr in execution
     // Better way to get addr of current mem executing besides label?
-    file << "(" << "ret_addr_" << counter << ")" << endl; // Make label based on global instruction counter (TODO: Remove this hack)
+    file << "(" << ret_label << ")" << endl; // Make label based on global instruction counter (TODO: Remove this hack)
 
 }
 void Writer::writeReturn(string seg, int index)
 {
     // TODO: Use segMap instead of creating vetor?
+    // TODO: Verify that R13+ are general purpose registers
 
-    // Store the return value at ARG (going to be new SP location)
+    // Store the return value at general purpose register R13
     file << "// return" << endl;
     file << "@SP" << endl;
     file << "A=M-1" << endl;
     file << "D=M" << endl;
-    file << "@ARG" << endl;
-    file << "A=M" << endl;
+    file << "@R13" << endl;
     file << "M=D" << endl;
 
     // Reset SP
@@ -467,11 +467,12 @@ void Writer::writeReturn(string seg, int index)
 // TODO: Add function to map -> line and check if exists already?
 void Writer::writeFunction(string functionName, int numLocals)
 {
+    counter++;
     file << "// function " << functionName << " " << numLocals << endl;
     // Create label
     file << "(" << functionName << ")" << endl;
     // Store numArgs in D
-    file << "  // Store numArgs in D" << endl;
+    file << "  // Store numLocals in D" << endl;
     file << "@" << numLocals << endl;
     file << "D=A" << endl;
 
