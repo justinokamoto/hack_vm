@@ -417,49 +417,51 @@ void Writer::writeCall(string functionName, int numArgs)
 }
 void Writer::writeReturn(string seg, int index)
 {
-    // TODO: Use segMap instead of creating vetor?
+    // TODO: Use segMap instead of creating vector?
     // TODO: Verify that R13+ are general purpose registers
-
-    // Store the return value at general purpose register R13
     file << "// return" << endl;
-    file << "@SP" << endl;
-    file << "A=M-1" << endl;
-    file << "D=M" << endl;
-    file << "@R13" << endl;
-    file << "M=D" << endl;
 
-    // Reset SP
-    file << "@ARG" << endl; // Set A to ARG ptr
-    file << "D=M" << endl;  // Set D to ARG addr
-    file << "@SP" << endl;  // Set A to SP ptr
-    file << "M=D+1" << endl; // Increment SP ptr to ARG ptr + 1
-
-    // Store LCL in @frame variable
+    // Store the return addr at general purpose register R13
+    file << "  // Store the return addr at general purpose register R13" << endl;
     file << "@LCL" << endl;
+    file << "D=M" << endl; // Store LCL in D
+    file << "@5" << endl;
+    file << "D=D-A" << endl; // Subtract 5 from D
+    file << "A=D" << endl; // Jump to register storing return addr
+    file << "D=M" << endl; // Store return addr
+    file << "@R13" << endl;
+    file << "M=D" << endl; // Store return addr in R13
+
+    // Set ARG to current SP value
+    file << "  // Set ARG to return value" << endl;
+    file << "@SP" << endl;
+    file << "A=M-1" << endl; // Jump to previous stack register
+    file << "D=M" << endl; // Store value in D
+    file << "@ARG" << endl;
+    file << "A=M" << endl;
+    file << "M=D" << endl; // Store D at ARG location
+    // Wind SP back to ARG + 1
+    file << "  // Restore SP to ARG+1" << endl;
+    file << "@ARG" << endl;
     file << "D=M" << endl;
-    file << "@frame" << endl;
-    file << "M=D" << endl;
-    // Walk back and restore all memory segments
-    vector<std::string> memSegs;
-    memSegs.push_back("THAT");
-    memSegs.push_back("THIS");
-    memSegs.push_back("ARG");
-    memSegs.push_back("LCL");
-    for (std::string seg : memSegs) {
-        // Walk frame back
-        file << "@frame" << endl;
-        file << "M=M-1" << endl;
-        // Store caller memory segment addr in D
-        file << "A=M" << endl;
+    file << "@SP" << endl;
+    file << "M=D+1" << endl;
+
+    // Restore all memory segments
+    // in reference to LCL address
+    file << "  // Restore all memory segments" << endl;
+    int lcl_offset = 1; // offset from LCL address
+    for (std::string seg : vector<std::string>{"THAT", "THIS", "ARG", "LCL"}) {
+        file << "@" << lcl_offset << endl;
+        file << "D=A" << endl;
+        file << "@LCL" << endl;
+        file << "A=M-D" << endl;
         file << "D=M" << endl;
-        // Set memory segment to D
         file << "@" << seg << endl;
         file << "M=D" << endl;
+        lcl_offset++;
     }
-    // Walk frame back
-    file << "@frame" << endl;
-    file << "M=M-1" << endl;
-    // Load return address and jump to it
+    file << "@R13" << endl;
     file << "A=M" << endl;
     file << "0;JMP" << endl;
 }
