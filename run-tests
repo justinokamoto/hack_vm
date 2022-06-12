@@ -1,7 +1,7 @@
 #!/bin/bash
 # TODO: Integrate wth CMake soon
 run_test () {
-    ./build/vm_translator $1.vm $1.asm
+    DISABLE_BOOTSTRAP=1 ./build/vm_translator $1.vm $1.asm
     ./tools/CPUEmulator.sh $1.tst    
 }
 
@@ -16,7 +16,6 @@ run_test ./projects/07/StackArithmetic/SimpleAdd/SimpleAdd
 echo "Stack Test..."
 run_test ./projects/07/StackArithmetic/StackTest/StackTest
 
-# TODO: StaticsTest
 echo "Basic Loop Test..."
 run_test ./projects/08/ProgramFlow/BasicLoop/BasicLoop
 echo "Fibonacci Series Test..."

@@ -202,7 +202,13 @@ int main(int argc, char **argv)
 
     Writer writer = Writer(outfile); // Define here so `counter` isn't reset (TODO: global counter)
     // Conditionally bootstrap? (add option for this)
-    // writer.writeBootstrap();
+
+    // Debug option for test purposes (early tests don't assume VM is properly bootstrapped)
+    if (getenv("DISABLE_BOOTSTRAP")) {
+        cerr << "WARNING: VM bootstrapping disabled." << endl;
+    } else {
+        writer.writeBootstrap();
+    }
 
     for (auto const& in_filename : in_filenames) {
         ifstream inputfile(in_filename);

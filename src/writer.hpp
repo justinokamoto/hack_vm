@@ -33,6 +33,7 @@ public:
 	void writeReturn(std::string seg, int index);
 	void writeFunction(std::string functionName, int numLocals);
 
+    // TODO: SHOULD IT SAVE EMPTY MEMORY SEGMENTS OR JUMP IMMEDIATELY? WHAT DOES SYS.INIT DO????!!!
     // TODO: Move to .cpp
     // Bootstraps VM implementation....This causes failures?
     void writeBootstrap() {
