@@ -10,14 +10,32 @@
 class Writer
 {
 private:
-	std::ofstream &file;
+	std::ofstream &file; // Have this be hidden (writeLine() only way to write)
 	std::string mFilename;
-	int counter;
+	int counter = 0;
+    int line_num = 0;
     std::map<std::string, std::string> segMap;	// Make this static
 
+    // TODO: Move to .cpp
     int retrieveCounter() {
         counter++;
         return counter++;
+    }
+
+    // TODO: Move to .cpp
+    template<typename... Args>
+    void writeLine(std::string arg, Args... args) {
+        // Write args as-is
+        file << arg;
+        ((file << " " << args), ...);
+        // If first arg is not comment, write line number
+        if ((arg.rfind("//", 0) != 0) ||
+            (arg.rfind("  //", 0) != 0)) {
+            file << " // LINE_NUMBER: " << line_num;
+            line_num++;
+        }
+
+        file << std::endl;
     }
 public:
     Writer(std::ofstream &f);
@@ -38,15 +56,15 @@ public:
     // Bootstraps VM implementation....This causes failures?
     void writeBootstrap() {
         // Store 256 in D register
-        file << "@256" << std::endl;
-        file << "D=A" << std::endl;
+        writeLine("@256");
+        writeLine("D=A");
         // Update SP location to 256
-        file << "@SP" << std::endl;
-        file << "M=D" << std::endl;
+        writeLine("@SP");
+        writeLine("M=D");
         // Calls arg-less "Sys.init" function
         writeCall("Sys.init", 0);
-        file << "@END" << std::endl;
-        file << "0;JMP" << std::endl;
+        writeLine("@END");
+        writeLine("0;JMP");
     }
 };
 

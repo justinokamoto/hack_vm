@@ -30,121 +30,121 @@ void Writer::setFilename(string filename)
 void Writer::writeArithemtic(string op)
 {
     counter++; // Only do when needed!
-    file << "// " << op << endl;
+    writeLine("// ", op);
     if (op.compare("add") == 0)
         {
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "D=M" << endl;
-            file << "A=A-1" << endl;
-            file << "M=M+D" << endl;
-            file << "@SP" << endl;
-            file << "M=M-1" << endl;
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("D=M");
+            writeLine("A=A-1");
+            writeLine("M=M+D");
+            writeLine("@SP");
+            writeLine("M=M-1");
         }
     else if (op.compare("sub") == 0)
         {
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "D=M" << endl;
-            file << "A=A-1" << endl;
-            file << "M=M-D" << endl;
-            file << "@SP" << endl;
-            file << "M=M-1" << endl;
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("D=M");
+            writeLine("A=A-1");
+            writeLine("M=M-D");
+            writeLine("@SP");
+            writeLine("M=M-1");
         }
     else if (op.compare("lt") == 0)
         {
-            file << "@SP" << endl;
-            file << "M=M-1" << endl;
-            file << "A=M" << endl;
-            file << "D=M" << endl;
-            file << "A=A-1" << endl;
-            file << "D=M-D" << endl;
-            file << "@BRANCH_TRUE_" << counter << endl;
-            file << "D;JLT" << endl;
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=0" << endl;
-            file << "@END_BRANCH_" << counter << endl;
-            file << "0;JMP" << endl;
-            file << "(BRANCH_TRUE_" << counter << ")" << endl;
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=-1" << endl;
-            file << "(END_BRANCH_" << counter << ")" << endl;
+            writeLine("@SP");
+            writeLine("M=M-1");
+            writeLine("A=M");
+            writeLine("D=M");
+            writeLine("A=A-1");
+            writeLine("D=M-D");
+            writeLine("@BRANCH_TRUE_", counter);
+            writeLine("D;JLT");
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=0");
+            writeLine("@END_BRANCH_", counter);
+            writeLine("0;JMP");
+            writeLine("(BRANCH_TRUE_", counter, ")");
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=-1");
+            writeLine("(END_BRANCH_", counter, ")");
         }
     else if (op.compare("gt") == 0)
         {
-            file << "@SP" << endl;
-            file << "M=M-1" << endl;
-            file << "A=M" << endl;
-            file << "D=M" << endl;
-            file << "A=A-1" << endl;
-            file << "D=M-D" << endl;
-            file << "@BRANCH_TRUE_" << counter << endl;
-            file << "D;JGT" << endl;
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=0" << endl;
-            file << "@END_BRANCH_" << counter << endl;
-            file << "0;JMP" << endl;
-            file << "(BRANCH_TRUE_" << counter << ")" << endl;
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=-1" << endl;
-            file << "(END_BRANCH_" << counter << ")" << endl;
+            writeLine("@SP");
+            writeLine("M=M-1");
+            writeLine("A=M");
+            writeLine("D=M");
+            writeLine("A=A-1");
+            writeLine("D=M-D");
+            writeLine("@BRANCH_TRUE_", counter);
+            writeLine("D;JGT");
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=0");
+            writeLine("@END_BRANCH_", counter);
+            writeLine("0;JMP");
+            writeLine("(BRANCH_TRUE_", counter, ")");
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=-1");
+            writeLine("(END_BRANCH_", counter, ")");
         }
     else if (op.compare("eq") == 0)
         {
-            file << "@SP" << endl;
-            file << "M=M-1" << endl;
-            file << "A=M" << endl;
-            file << "D=M" << endl;
-            file << "A=A-1" << endl;
-            file << "D=D-M" << endl;
-            file << "@BRANCH_TRUE_" << counter << endl;
-            file << "D;JEQ" << endl;
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=0" << endl;
-            file << "@END_BRANCH_" << counter << endl;
-            file << "0;JMP" << endl;
-            file << "(BRANCH_TRUE_" << counter << ")" << endl;
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=-1" << endl;
-            file << "(END_BRANCH_" << counter << ")" << endl;
+            writeLine("@SP");
+            writeLine("M=M-1");
+            writeLine("A=M");
+            writeLine("D=M");
+            writeLine("A=A-1");
+            writeLine("D=D-M");
+            writeLine("@BRANCH_TRUE_", counter);
+            writeLine("D;JEQ");
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=0");
+            writeLine("@END_BRANCH_", counter);
+            writeLine("0;JMP");
+            writeLine("(BRANCH_TRUE_", counter, ")");
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=-1");
+            writeLine("(END_BRANCH_", counter, ")");
         }
     else if (op.compare("and") == 0)
         {
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "D=M" << endl;
-            file << "A=A-1" << endl;
-            file << "M=D&M" << endl;
-            file << "@SP" << endl;
-            file << "M=M-1" << endl;
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("D=M");
+            writeLine("A=A-1");
+            writeLine("M=D&M");
+            writeLine("@SP");
+            writeLine("M=M-1");
         }
     else if (op.compare("or") == 0)
         {
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "D=M" << endl;
-            file << "A=A-1" << endl;
-            file << "M=D|M" << endl;
-            file << "@SP" << endl;
-            file << "M=M-1" << endl;
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("D=M");
+            writeLine("A=A-1");
+            writeLine("M=D|M");
+            writeLine("@SP");
+            writeLine("M=M-1");
         }
     else if (op.compare("neg") == 0)
         {
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=-M" << endl;
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=-M");
         }
     else if (op.compare("not") == 0)
         {
-            file << "@SP" << endl;
-            file << "A=M-1" << endl;
-            file << "M=!M" << endl;
+            writeLine("@SP");
+            writeLine("A=M-1");
+            writeLine("M=!M");
         }
     else
         {
@@ -157,41 +157,42 @@ void Writer::writePushPop(CommandType type, string seg, int index)
     counter++;
     if (type == C_PUSH)
         {
-            file << "// push " << seg << " " << index << endl;
+            writeLine("// push ", seg, " ", index);
             if (segMap.find(seg) != segMap.end())
                 {
-                    file << "@" << index << endl;
-                    file << "D=A" << endl;
-                    file << "@" << segMap[seg] << endl;
-                    file << "A=M" << endl;
-                    file << "A=A+D" << endl;
-                    file << "D=M" << endl;
-                    file << "@SP" << endl;
-                    file << "M=M+1" << endl;
-                    file << "A=M-1" << endl;
-                    file << "M=D" << endl;
+                    writeLine("@", index);
+                    writeLine("D=A");
+                    writeLine("@", segMap[seg]);
+                    writeLine("A=M");
+                    writeLine("A=A+D");
+                    writeLine("D=M");
+                    writeLine("@SP");
+                    writeLine("M=M+1");
+                    writeLine("A=M-1");
+                    writeLine("M=D");
                 }
             else if (seg.compare("constant") == 0)
                 {
-                    file << "@" << index << endl;
-                    file << "D=A" << endl;
-                    file << "@SP" << endl;
-                    file << "A=M" << endl;
-                    file << "M=D" << endl;
-                    file << "@SP" << endl;
-                    file << "M=M+1" << endl;
+                    writeLine("@", index);
+                    writeLine("D=A");
+                    writeLine("@SP");
+                    writeLine("A=M");
+                    writeLine("M=D");
+                    writeLine("@SP");
+                    writeLine("M=M+1");
                 }
             else if (seg.compare("temp") == 0)
                 {
-                    file << "@5" << endl; // What?
-                    file << "D=A" << endl;
-                    file << "@" << index << endl;
-                    file << "A=A+D" << endl;
-                    file << "D=M" << endl;
-                    file << "@SP" << endl;
-                    file << "M=M+1" << endl;
-                    file << "A=M-1" << endl;
-                    file << "M=D" << endl;
+                    // TODO: What?
+                    writeLine("@5");
+                    writeLine("D=A");
+                    writeLine("@", index);
+                    writeLine("A=A+D");
+                    writeLine("D=M");
+                    writeLine("@SP");
+                    writeLine("M=M+1");
+                    writeLine("A=M-1");
+                    writeLine("M=D");
                 }
             else if (seg.compare("pointer") == 0)
                 {
@@ -209,21 +210,21 @@ void Writer::writePushPop(CommandType type, string seg, int index)
                             cout << "Invalid push to pointer " << index << endl;
                             // TODO: Raise exception
                         }
-                    file << "@" << seg << endl;
-                    file << "D=M" << endl;
-                    file << "@SP" << endl;
-                    file << "M=M+1" << endl;
-                    file << "A=M-1" << endl;
-                    file << "M=D" << endl;
+                    writeLine("@", seg);
+                    writeLine("D=M");
+                    writeLine("@SP");
+                    writeLine("M=M+1");
+                    writeLine("A=M-1");
+                    writeLine("M=D");
                 }
             else if (seg.compare("static") == 0)
                 {
-                    file << "@" << mFilename << "." << index << endl;
-                    file << "D=M" << endl;
-                    file << "@SP" << endl;
-                    file << "M=M+1" << endl;
-                    file << "A=M-1" << endl;
-                    file << "M=D" << endl;
+                    writeLine("@", mFilename, ".", index);
+                    writeLine("D=M");
+                    writeLine("@SP");
+                    writeLine("M=M+1");
+                    writeLine("A=M-1");
+                    writeLine("M=D");
                 }
             else
                 {
@@ -232,100 +233,100 @@ void Writer::writePushPop(CommandType type, string seg, int index)
         }
     else if (type == C_POP)
         {
-            file << "// pop " << seg << " " << index << endl;
+            writeLine("// pop ", seg, " ", index);
             if (segMap.find(seg) != segMap.end())
                 {
-                    file << "@" << index << endl;
-                    file << "D=A" << endl;
-                    file << "@" << segMap[seg] << endl;
-                    file << "A=M" << endl;
-                    file << "D=A+D" << endl;
-                    file << "@R13" << endl;
-                    file << "M=D" << endl;
-                    file << "@SP" << endl;
-                    file << "M=M-1" << endl;
-                    file << "A=M" << endl;
-                    file << "D=M" << endl;
-                    file << "@R13" << endl;
-                    file << "A=M" << endl;
-                    file << "M=D" << endl;
+                    writeLine("@", index);
+                    writeLine("D=A");
+                    writeLine("@", segMap[seg]);
+                    writeLine("A=M");
+                    writeLine("D=A+D");
+                    writeLine("@R13");
+                    writeLine("M=D");
+                    writeLine("@SP");
+                    writeLine("M=M-1");
+                    writeLine("A=M");
+                    writeLine("D=M");
+                    writeLine("@R13");
+                    writeLine("A=M");
+                    writeLine("M=D");
                 }
             else if (seg.compare("temp") == 0)
                 {
-                    file << "@5" << endl;
-                    file << "D=A" << endl;
-                    file << "@" << index << endl;
-                    file << "D=A+D" << endl;
-                    file << "@R13" << endl;
-                    file << "M=D" << endl;
-                    file << "@SP" << endl;
-                    file << "M=M-1" << endl;
-                    file << "A=M" << endl;
-                    file << "D=M" << endl;
-                    file << "@R13" << endl;
-                    file << "A=M" << endl;
-                    file << "M=D" << endl;
+                    writeLine("@5");
+                    writeLine("D=A");
+                    writeLine("@", index);
+                    writeLine("D=A+D");
+                    writeLine("@R13");
+                    writeLine("M=D");
+                    writeLine("@SP");
+                    writeLine("M=M-1");
+                    writeLine("A=M");
+                    writeLine("D=M");
+                    writeLine("@R13");
+                    writeLine("A=M");
+                    writeLine("M=D");
                 }
             else if (seg.compare("pointer") == 0)
                 {
                     string segToken = (index == 0) ? "THIS" : "THAT";
-                    file << "@" << segToken << endl;
-                    file << "D=A" << endl;
-                    file << "@R13" << endl;
-                        file << "M=D" << endl;
-                        file << "@SP" << endl;
-                        file << "M=M-1" << endl;
-                        file << "A=M" << endl;
-                        file << "D=M" << endl;
-                        file << "@R13" << endl;
-                        file << "A=M" << endl;
-                        file << "M=D" << endl;
+                    writeLine("@", segToken);
+                    writeLine("D=A");
+                    writeLine("@R13");
+                    writeLine("M=D");
+                    writeLine("@SP");
+                    writeLine("M=M-1");
+                    writeLine("A=M");
+                    writeLine("D=M");
+                    writeLine("@R13");
+                    writeLine("A=M");
+                    writeLine("M=D");
                 }
                 else if (seg.compare("static") == 0)
                 {
-                        file << "@SP" << endl;
-                        file << "M=M-1" << endl;
-                        file << "A=M" << endl;
-                        file << "D=M" << endl;
-                        file << "@" << mFilename << "." << index << endl;
-                        file << "M=D" << endl;
+                    writeLine("@SP");
+                    writeLine("M=M-1");
+                    writeLine("A=M");
+                    writeLine("D=M");
+                    writeLine("@", mFilename, ".", index);
+                    writeLine("M=D");
                 }
                 else
                 {
-                        cout << "Invalid segment pop " << seg << endl;
+                    cout << "Invalid segment pop " << seg << endl;
                 }
         }
         else
         {
-                cout << "Only push/pop commands allowed here.";
-                // TODO: Exception
+            cout << "Only push/pop commands allowed here.";
+            // TODO: Exception
         }
 }
 // TODO: Most of these don't need CommandType args
 void Writer::writeInit(CommandType type, string seg, int index)
 {
-        file << "// " << endl;
+    // REMOVE
 }
 void Writer::writeLabel(CommandType type, string label)
 {
-        file << "// label " << label << endl;
-        file << "(" << label << ")" << endl;
+    writeLine("// label ", label);
+    writeLine("(", label, ")");
 }
 void Writer::writeGoto(CommandType type, string label)
 {
-        file << "// goto " << label << endl;
-        file << "@" << label << endl;
-        file << "0;JMP" << endl;
+    writeLine("// goto ", label);
+    writeLine("@", label);
+    writeLine("0;JMP");
 }
 void Writer::writeIf(CommandType type, string label)
 {
-        file << "// if-goto " << label << endl;
-        file << "@SP" << endl; // Set A to SP
-        file << "M=M-1" << endl; // Get recent SP mem address
-        file << "A=M" << endl; // Set memory to recent SP mem address
-        file << "D=M" << endl; // Set D register to M
-        file << "@" << label << endl;
-        file << "D;JGT" << endl;
+    writeLine("// if-goto ", label);
+    writeLine("@SP");
+    writeLine("M=M-1");
+    writeLine("A=M");
+    writeLine("D=M");
+    writeLine("@", label);
+    writeLine("D;JGT");
 }
 // TODO: CREATE moveSP(int num) for convenience here!
 void Writer::writeCall(string functionName, int numArgs)
@@ -347,22 +348,22 @@ void Writer::writeCall(string functionName, int numArgs)
     // - Reposition LCL
     // - Jump to function
     // NOTE: callee will offset SP to LCL + num locals
-    file << "// call " << functionName << " " << numArgs << endl;
+    writeLine("// call ", functionName, " ", numArgs);
 
     // Push return addr, LCL addr, ARG addr, THIS addr, and THAT addr
     // to stack.
     std::string ret_label = "ret_addr_" + to_string(retrieveCounter());
 
-    file << "//   push @" << ret_label << " to stack " << endl;
+    writeLine("//   push @", ret_label, " to stack ");
     // Store addr in D
-    file << "@" << ret_label << endl;
-    file << "D=A" << endl;
+    writeLine("@", ret_label);
+    writeLine("D=A");
     // Advance SP
-    file << "@SP" << endl;
-    file << "M=M+1" << endl;
+    writeLine("@SP");
+    writeLine("M=M+1");
     // Set prev SP value to D
-    file << "A=M-1" << endl;
-    file << "M=D" << endl;
+    writeLine("A=M-1");
+    writeLine("M=D");
 
     vector<std::string> ret_addrs;
     ret_addrs.push_back("LCL");
@@ -370,130 +371,139 @@ void Writer::writeCall(string functionName, int numArgs)
     ret_addrs.push_back("THIS");
     ret_addrs.push_back("THAT");
     for (std::string addr : ret_addrs) {
-        file << "//   push @" << addr << " to stack " << endl;
+        writeLine("//   push @", addr, " to stack ");
         // Store addr in D
-        file << "@" << addr << endl;
-        file << "D=M" << endl;
+        writeLine("@", addr);
+        writeLine("D=M");
         // Advance SP
-        file << "@SP" << endl;
-        file << "M=M+1" << endl;
+        writeLine("@SP");
+        writeLine("M=M+1");
         // Set prev SP value to D
-        file << "A=M-1" << endl;
-        file << "M=D" << endl;
+        writeLine("A=M-1");
+        writeLine("M=D");
     }
 
     // Reposition LCL
     // Essentially accomplishing LCL = SP
-    file << "   // Reposition LCL (LCL=SP)" << endl;
-    file << "@SP" << endl;
-    file << "D=M" << endl;
-    file << "@LCL" << endl;
-    file << "M=D" << endl;
+    writeLine("  // Reposition LCL (LCL=SP)");
+    writeLine("@SP");
+    writeLine("D=M");
+    writeLine("@LCL");
+    writeLine("M=D");
 
     // Reposition ARG
     // ARG = SP - nargs - 5
-    file << "   // Reposition ARG (ARG=SP-nargs-5)" << endl;
+    writeLine("  // Reposition ARG (ARG=SP-nargs-5)");
     // Load SP and store to D
-    file << "@SP" << endl;
-    file << "D=M" << endl;
+    writeLine("@SP");
+    writeLine("D=M");
     // Load 5 and store to D
-    file << "@5" << endl;
-    file << "D=D-A" << endl;
+    writeLine("@5");
+    writeLine("D=D-A");
     // Load nargs and store to D
-    file << "@" << numArgs << endl;
-    file << "D=D-A" << endl;
+    writeLine("@", numArgs);
+    writeLine("D=D-A");
     // Set ARG to D
-    file << "@ARG" << endl;
-    file << "M=D" << endl;
+    writeLine("@ARG");
+    writeLine("M=D");
 
     // call function
-    file << "   // Jump to function address" << endl;
-    file << "@" << functionName << endl;
-    file << "0;JMP" << endl;
+    writeLine("  // Jump to function address");
+    writeLine("@", functionName);
+    writeLine("0;JMP");
     // Create label to mark current addr in execution
     // Better way to get addr of current mem executing besides label?
-    file << "(" << ret_label << ")" << endl; // Make label based on global instruction counter (TODO: Remove this hack)
+    // Make label based on global instruction counter (TODO: Remove this hack)
+    writeLine("(", ret_label, ")");
 
 }
 void Writer::writeReturn(string seg, int index)
 {
     // TODO: Use segMap instead of creating vector?
     // TODO: Verify that R13+ are general purpose registers
-    file << "// return" << endl;
+    writeLine("// return");
 
     // Store the return addr at general purpose register R13
-    file << "  // Store the return addr at general purpose register R13" << endl;
-    file << "@LCL" << endl;
-    file << "D=M" << endl; // Store LCL in D
-    file << "@5" << endl;
-    file << "D=D-A" << endl; // Subtract 5 from D
-    file << "A=D" << endl; // Jump to register storing return addr
-    file << "D=M" << endl; // Store return addr
-    file << "@R13" << endl;
-    file << "M=D" << endl; // Store return addr in R13
+    writeLine("  // Store the return addr at general purpose register R13");
+    writeLine("@LCL");
+    // Store LCL in D
+    writeLine("D=M");
+    writeLine("@5");
+    // Subtract 5 from D
+    writeLine("D=D-A");
+    // Jump to register storing return addr
+    writeLine("A=D");
+    // Store return addr
+    writeLine("D=M");
+    writeLine("@R13");
+    // Store return addr in R13
+    writeLine("M=D");
 
     // Set ARG to current SP value
-    file << "  // Set ARG to return value" << endl;
-    file << "@SP" << endl;
-    file << "A=M-1" << endl; // Jump to previous stack register
-    file << "D=M" << endl; // Store value in D
-    file << "@ARG" << endl;
-    file << "A=M" << endl;
-    file << "M=D" << endl; // Store D at ARG location
+    writeLine("  // Set ARG to return value");
+    writeLine("@SP");
+    // Jump to previous stack register
+    writeLine("A=M-1");
+    // Store value in D
+    writeLine("D=M");
+    writeLine("@ARG");
+    writeLine("A=M");
+    // Store D at ARG location
+    writeLine("M=D");
     // Wind SP back to ARG + 1
-    file << "  // Restore SP to ARG+1" << endl;
-    file << "@ARG" << endl;
-    file << "D=M" << endl;
-    file << "@SP" << endl;
-    file << "M=D+1" << endl;
+    writeLine("  // Restore SP to ARG+1");
+    writeLine("@ARG");
+    writeLine("D=M");
+    writeLine("@SP");
+    writeLine("M=D+1");
 
     // Restore all memory segments
     // in reference to LCL address
-    file << "  // Restore all memory segments" << endl;
+    writeLine("  // Restore all memory segments");
     int lcl_offset = 1; // offset from LCL address
     for (std::string seg : vector<std::string>{"THAT", "THIS", "ARG", "LCL"}) {
-        file << "@" << lcl_offset << endl;
-        file << "D=A" << endl;
-        file << "@LCL" << endl;
-        file << "A=M-D" << endl;
-        file << "D=M" << endl;
-        file << "@" << seg << endl;
-        file << "M=D" << endl;
+        writeLine("@", lcl_offset);
+        writeLine("D=A");
+        writeLine("@LCL");
+        writeLine("A=M-D");
+        writeLine("D=M");
+        writeLine("@", seg);
+        writeLine("M=D");
         lcl_offset++;
     }
-    file << "@R13" << endl;
-    file << "A=M" << endl;
-    file << "0;JMP" << endl;
+    writeLine("@R13");
+    writeLine("A=M");
+    writeLine("0;JMP");
 }
 
 // TODO: Add function to map -> line and check if exists already?
 void Writer::writeFunction(string functionName, int numLocals)
 {
     counter++;
-    file << "// function " << functionName << " " << numLocals << endl;
+    writeLine("// function ", functionName, " ", numLocals);
     // Create label
-    file << "(" << functionName << ")" << endl;
+    writeLine("(", functionName, ")");
     // Store numArgs in D
-    file << "  // Store numLocals in D" << endl;
-    file << "@" << numLocals << endl;
-    file << "D=A" << endl;
+    writeLine("  // Store numLocals in D");
+    writeLine("@", numLocals);
+    writeLine("D=A");
 
     // Advance SP (caller keeps SP and LCL at the same position)
     // SP = SP + numLocals
     // Initializes local variables to 0 as SP advances
-    file << "  // Init LCL segment values to 0" << endl;
-    file << "@BRANCH_INIT_LOCAL_" << functionName << endl;
-    file << "D;JGT" << endl;
-    file << "@END_INIT_LOCAL_" << functionName << endl;
-    file << "0;JMP" << endl;
-    file << "(BRANCH_INIT_LOCAL_" << functionName << ")" << endl;
-    file << "@SP" << endl;
-    file << "M=M+1" << endl; // Advance SP addr
-    file << "A=M-1" << endl; // Go to prev SP addr value
-    file << "M=0" << endl;   // Init the memory to 0
-    file << "D=D-1" << endl; // Decrement numArgs
-    file << "@BRANCH_INIT_LOCAL_" << functionName << endl;
-    file << "D;JGT" << endl;
-    file << "(END_INIT_LOCAL_" << functionName << ")" << endl;
+    writeLine("  // Init LCL segment values to 0");
+    writeLine("@BRANCH_INIT_LOCAL_", functionName);
+    writeLine("D;JGT");
+    writeLine("@END_INIT_LOCAL_", functionName);
+    writeLine("0;JMP");
+    writeLine("(BRANCH_INIT_LOCAL_", functionName, ")");
+    writeLine("@SP");
+    writeLine("M=M+1");
+    writeLine("A=M-1");
+    writeLine("M=0");
+    writeLine("D=D-1");
+    writeLine("@BRANCH_INIT_LOCAL_", functionName);
+    writeLine("D;JGT");
+    writeLine("(END_INIT_LOCAL_", functionName, ")");
 }
 
