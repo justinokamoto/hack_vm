@@ -25,12 +25,8 @@ run_test ./projects/08/FunctionCalls/SimpleFunction/SimpleFunction
 echo "Nested Call Test..."
 ./build/vm_translator ./projects/08/FunctionCalls/NestedCall/ ./projects/08/FunctionCalls/NestedCall/NestedCall.asm
 ./tools/CPUEmulator.sh ./projects/08/FunctionCalls/NestedCall/NestedCall.tst
-echo "FibonacciElement..."
+echo "Fibonacci Element Test..."
 ./build/vm_translator ./projects/08/FunctionCalls/FibonacciElement/ ./projects/08/FunctionCalls/FibonacciElement/FibonacciElement.asm
 ./tools/CPUEmulator.sh ./projects/08/FunctionCalls/FibonacciElement/FibonacciElement.tst
 
-
-
-# echo "Fibonacci Element Test..."
-# Make this test runner work better
-# ./build/vm_translator ./projects/08/FunctionCalls/FibonacciElement/Main.vm ./projects/08/FunctionCalls/FibonacciElement/Main.asm
+# TODO: StaticsTest?

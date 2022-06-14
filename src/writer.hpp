@@ -27,11 +27,15 @@ private:
     void writeLine(std::string arg, Args... args) {
         // Write args as-is
         file << arg;
-        ((file << " " << args), ...);
-        // If first arg is not comment, write line number
-        if ((arg.rfind("//", 0) != 0) ||
-            (arg.rfind("  //", 0) != 0)) {
-            file << " // LINE_NUMBER: " << line_num;
+        ((file << args), ...);
+        if ((arg.rfind("//", 0) != 0) && // Not comment
+            (arg.rfind("  //", 0) != 0) && // Not indented comment
+            (arg.rfind("(", 0) != 0)) { // Not label
+            int offset = 48 - arg.length();
+            if (offset > 0)
+                file << std::string(offset, ' ');
+            // TODO: Fix offset
+            file << "// LINE_NUMBER: " << line_num;
             line_num++;
         }
 
@@ -51,9 +55,7 @@ public:
 	void writeReturn(std::string seg, int index);
 	void writeFunction(std::string functionName, int numLocals);
 
-    // TODO: SHOULD IT SAVE EMPTY MEMORY SEGMENTS OR JUMP IMMEDIATELY? WHAT DOES SYS.INIT DO????!!!
     // TODO: Move to .cpp
-    // Bootstraps VM implementation....This causes failures?
     void writeBootstrap() {
         // Store 256 in D register
         writeLine("@256");

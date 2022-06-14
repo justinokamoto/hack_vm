@@ -326,7 +326,7 @@ void Writer::writeIf(CommandType type, string label)
     writeLine("A=M");
     writeLine("D=M");
     writeLine("@", label);
-    writeLine("D;JGT");
+    writeLine("D;JNE");
 }
 // TODO: CREATE moveSP(int num) for convenience here!
 void Writer::writeCall(string functionName, int numArgs)
