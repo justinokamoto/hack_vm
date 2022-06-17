@@ -14,7 +14,11 @@ private:
 	std::string mFilename;
 	int counter = 0;
     int line_num = 0;
-    std::map<std::string, std::string> segMap;	// Make this static
+    inline const static std::map<std::string, std::string> segmentToSymMap = {
+        {"local", "LCL"},
+        {"argument", "ARG"},
+        {"this", "THIS"},
+        {"that", "THAT"}};
 
     // TODO: Move to .cpp
     int retrieveCounter() {

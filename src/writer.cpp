@@ -13,14 +13,10 @@ using namespace std;
 // - pushing to SP
 // - writing assembly (writeLine()) or something...
 
-Writer::Writer(ofstream &f): file(f)
-{
-    segMap.insert(pair<string, string>("local", "LCL"));
-    segMap.insert(pair<string, string>("argument", "ARG"));
-    segMap.insert(pair<string, string>("this", "THIS"));
-    segMap.insert(pair<string, string>("that", "THAT"));
-    counter = 0;
-}
+Writer::Writer(ofstream &f)
+    : file(f)
+    , counter(0)
+{}
 
 void Writer::setFilename(string filename)
 {
@@ -158,11 +154,11 @@ void Writer::writePushPop(CommandType type, string seg, int index)
     if (type == C_PUSH)
         {
             writeLine("// push ", seg, " ", index);
-            if (segMap.find(seg) != segMap.end())
+            if (segmentToSymMap.find(seg) != segmentToSymMap.end())
                 {
                     writeLine("@", index);
                     writeLine("D=A");
-                    writeLine("@", segMap[seg]);
+                    writeLine("@", segmentToSymMap.at(seg));
                     writeLine("A=M");
                     writeLine("A=A+D");
                     writeLine("D=M");
@@ -234,11 +230,11 @@ void Writer::writePushPop(CommandType type, string seg, int index)
     else if (type == C_POP)
         {
             writeLine("// pop ", seg, " ", index);
-            if (segMap.find(seg) != segMap.end())
+            if (segmentToSymMap.find(seg) != segmentToSymMap.end())
                 {
                     writeLine("@", index);
                     writeLine("D=A");
-                    writeLine("@", segMap[seg]);
+                    writeLine("@", segmentToSymMap.at(seg));
                     writeLine("A=M");
                     writeLine("D=A+D");
                     writeLine("@R13");
@@ -419,7 +415,7 @@ void Writer::writeCall(string functionName, int numArgs)
 }
 void Writer::writeReturn(string seg, int index)
 {
-    // TODO: Use segMap instead of creating vector?
+    // TODO: Use segmentToSymMap instead of creating vector?
     // TODO: Verify that R13+ are general purpose registers
     writeLine("// return");
 
