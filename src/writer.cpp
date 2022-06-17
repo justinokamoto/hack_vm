@@ -11,15 +11,21 @@ using namespace std;
 // - pushing to SP
 // - writing assembly (writeLine()) or something...
 
-Writer::Writer(ofstream &f) : file(f), counter(0) {}
-
-int Writer::retrieveCounter() {
-    counter++;
-    return counter++;
+Writer::Writer(ofstream& f)
+    : file(f)
+{
 }
 
-template<typename... Args>
-void Writer::writeLine(std::string arg, Args... args) {
+// TODO: Make this hidden (no access to branch_num)
+int Writer::retrieveCounter()
+{
+    branch_num++;
+    return branch_num++;
+}
+
+template <typename... Args>
+void Writer::writeLine(std::string arg, Args... args)
+{
     // Write args as-is
     file << arg;
     ((file << args), ...);
@@ -37,303 +43,278 @@ void Writer::writeLine(std::string arg, Args... args) {
     file << std::endl;
 }
 
-void Writer::setFilename(string filename)
+void Writer::write(CommandType type,
+    const std::string& cmd,
+    const std::string& arg1,
+    int arg2)
 {
-    mFilename = filename;
+    if (type == C_ARITHMETIC) {
+        writeArithemtic(cmd);
+    } else if (type == C_PUSH || type == C_POP) {
+        writePushPop(type, arg1, arg2);
+    } else if (type == C_LABEL) {
+        writeLabel(type, arg1);
+    } else if (type == C_IF) {
+        writeIf(type, arg1);
+    } else if (type == C_GOTO) {
+        writeGoto(type, arg1);
+    } else if (type == C_RETURN) {
+        writeReturn(arg1, arg2);
+    } else if (type == C_FUNCTION) {
+        writeFunction(arg1, arg2);
+    } else if (type == C_CALL) {
+        writeCall(arg1, arg2);
+    } else {
+        throw std::invalid_argument("Unsupported command type.");
+    }
 }
 
-void Writer::writeArithemtic(string op)
+void Writer::setFilename(const string& fn)
 {
-    counter++; // Only do when needed!
-    writeLine("// ", op);
-    if (op.compare("add") == 0)
-        {
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("D=M");
-            writeLine("A=A-1");
-            writeLine("M=M+D");
-            writeLine("@SP");
-            writeLine("M=M-1");
-        }
-    else if (op.compare("sub") == 0)
-        {
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("D=M");
-            writeLine("A=A-1");
-            writeLine("M=M-D");
-            writeLine("@SP");
-            writeLine("M=M-1");
-        }
-    else if (op.compare("lt") == 0)
-        {
-            writeLine("@SP");
-            writeLine("M=M-1");
-            writeLine("A=M");
-            writeLine("D=M");
-            writeLine("A=A-1");
-            writeLine("D=M-D");
-            writeLine("@BRANCH_TRUE_", counter);
-            writeLine("D;JLT");
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=0");
-            writeLine("@END_BRANCH_", counter);
-            writeLine("0;JMP");
-            writeLine("(BRANCH_TRUE_", counter, ")");
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=-1");
-            writeLine("(END_BRANCH_", counter, ")");
-        }
-    else if (op.compare("gt") == 0)
-        {
-            writeLine("@SP");
-            writeLine("M=M-1");
-            writeLine("A=M");
-            writeLine("D=M");
-            writeLine("A=A-1");
-            writeLine("D=M-D");
-            writeLine("@BRANCH_TRUE_", counter);
-            writeLine("D;JGT");
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=0");
-            writeLine("@END_BRANCH_", counter);
-            writeLine("0;JMP");
-            writeLine("(BRANCH_TRUE_", counter, ")");
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=-1");
-            writeLine("(END_BRANCH_", counter, ")");
-        }
-    else if (op.compare("eq") == 0)
-        {
-            writeLine("@SP");
-            writeLine("M=M-1");
-            writeLine("A=M");
-            writeLine("D=M");
-            writeLine("A=A-1");
-            writeLine("D=D-M");
-            writeLine("@BRANCH_TRUE_", counter);
-            writeLine("D;JEQ");
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=0");
-            writeLine("@END_BRANCH_", counter);
-            writeLine("0;JMP");
-            writeLine("(BRANCH_TRUE_", counter, ")");
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=-1");
-            writeLine("(END_BRANCH_", counter, ")");
-        }
-    else if (op.compare("and") == 0)
-        {
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("D=M");
-            writeLine("A=A-1");
-            writeLine("M=D&M");
-            writeLine("@SP");
-            writeLine("M=M-1");
-        }
-    else if (op.compare("or") == 0)
-        {
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("D=M");
-            writeLine("A=A-1");
-            writeLine("M=D|M");
-            writeLine("@SP");
-            writeLine("M=M-1");
-        }
-    else if (op.compare("neg") == 0)
-        {
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=-M");
-        }
-    else if (op.compare("not") == 0)
-        {
-            writeLine("@SP");
-            writeLine("A=M-1");
-            writeLine("M=!M");
-        }
-    else
-        {
-            cout << "Mismatched arithmetic operator " << op;
-            // TODO: Throw exception
-        }
+    filename = fn;
 }
-void Writer::writePushPop(CommandType type, string seg, int index)
+
+void Writer::writeArithemtic(const string& op)
 {
-    counter++;
-    if (type == C_PUSH)
-        {
-            writeLine("// push ", seg, " ", index);
-            if (segmentToSymMap.find(seg) != segmentToSymMap.end())
-                {
-                    writeLine("@", index);
-                    writeLine("D=A");
-                    writeLine("@", segmentToSymMap.at(seg));
-                    writeLine("A=M");
-                    writeLine("A=A+D");
-                    writeLine("D=M");
-                    writeLine("@SP");
-                    writeLine("M=M+1");
-                    writeLine("A=M-1");
-                    writeLine("M=D");
-                }
-            else if (seg.compare("constant") == 0)
-                {
-                    writeLine("@", index);
-                    writeLine("D=A");
-                    writeLine("@SP");
-                    writeLine("A=M");
-                    writeLine("M=D");
-                    writeLine("@SP");
-                    writeLine("M=M+1");
-                }
-            else if (seg.compare("temp") == 0)
-                {
-                    // TODO: What?
-                    writeLine("@5");
-                    writeLine("D=A");
-                    writeLine("@", index);
-                    writeLine("A=A+D");
-                    writeLine("D=M");
-                    writeLine("@SP");
-                    writeLine("M=M+1");
-                    writeLine("A=M-1");
-                    writeLine("M=D");
-                }
-            else if (seg.compare("pointer") == 0)
-                {
-                    string seg;
-                    if (index == 0)
-                        {
-                            seg = "THIS";
-                        }
-                    else if (index == 1)
-                        {
-                            seg = "THAT";
-                        }
-                    else
-                        {
-                            cout << "Invalid push to pointer " << index << endl;
-                            // TODO: Raise exception
-                        }
-                    writeLine("@", seg);
-                    writeLine("D=M");
-                    writeLine("@SP");
-                    writeLine("M=M+1");
-                    writeLine("A=M-1");
-                    writeLine("M=D");
-                }
-            else if (seg.compare("static") == 0)
-                {
-                    writeLine("@", mFilename, ".", index);
-                    writeLine("D=M");
-                    writeLine("@SP");
-                    writeLine("M=M+1");
-                    writeLine("A=M-1");
-                    writeLine("M=D");
-                }
-            else
-                {
-                    cout << "Invalid segment pop " << seg << endl;
-                }
+    writeLine("// ", op);
+    if (op.compare("add") == 0) {
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("D=M");
+        writeLine("A=A-1");
+        writeLine("M=M+D");
+        writeLine("@SP");
+        writeLine("M=M-1");
+    } else if (op.compare("sub") == 0) {
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("D=M");
+        writeLine("A=A-1");
+        writeLine("M=M-D");
+        writeLine("@SP");
+        writeLine("M=M-1");
+    } else if (op.compare("lt") == 0) {
+        int counter = retrieveCounter();
+        writeLine("@SP");
+        writeLine("M=M-1");
+        writeLine("A=M");
+        writeLine("D=M");
+        writeLine("A=A-1");
+        writeLine("D=M-D");
+        writeLine("@BRANCH_TRUE_", counter);
+        writeLine("D;JLT");
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=0");
+        writeLine("@END_BRANCH_", counter);
+        writeLine("0;JMP");
+        writeLine("(BRANCH_TRUE_", counter, ")");
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=-1");
+        writeLine("(END_BRANCH_", counter, ")");
+    } else if (op.compare("gt") == 0) {
+        int counter = retrieveCounter();
+        writeLine("@SP");
+        writeLine("M=M-1");
+        writeLine("A=M");
+        writeLine("D=M");
+        writeLine("A=A-1");
+        writeLine("D=M-D");
+        writeLine("@BRANCH_TRUE_", counter);
+        writeLine("D;JGT");
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=0");
+        writeLine("@END_BRANCH_", counter);
+        writeLine("0;JMP");
+        writeLine("(BRANCH_TRUE_", counter, ")");
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=-1");
+        writeLine("(END_BRANCH_", counter, ")");
+    } else if (op.compare("eq") == 0) {
+        int counter = retrieveCounter();
+        writeLine("@SP");
+        writeLine("M=M-1");
+        writeLine("A=M");
+        writeLine("D=M");
+        writeLine("A=A-1");
+        writeLine("D=D-M");
+        writeLine("@BRANCH_TRUE_", counter);
+        writeLine("D;JEQ");
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=0");
+        writeLine("@END_BRANCH_", counter);
+        writeLine("0;JMP");
+        writeLine("(BRANCH_TRUE_", counter, ")");
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=-1");
+        writeLine("(END_BRANCH_", counter, ")");
+    } else if (op.compare("and") == 0) {
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("D=M");
+        writeLine("A=A-1");
+        writeLine("M=D&M");
+        writeLine("@SP");
+        writeLine("M=M-1");
+    } else if (op.compare("or") == 0) {
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("D=M");
+        writeLine("A=A-1");
+        writeLine("M=D|M");
+        writeLine("@SP");
+        writeLine("M=M-1");
+    } else if (op.compare("neg") == 0) {
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=-M");
+    } else if (op.compare("not") == 0) {
+        writeLine("@SP");
+        writeLine("A=M-1");
+        writeLine("M=!M");
+    } else {
+        cout << "Mismatched arithmetic operator " << op;
+        // TODO: Throw exception
+    }
+}
+void Writer::writePushPop(CommandType type, const string& seg, int index)
+{
+    if (type == C_PUSH) {
+        writeLine("// push ", seg, " ", index);
+        if (segmentToSymMap.find(seg) != segmentToSymMap.end()) {
+            writeLine("@", index);
+            writeLine("D=A");
+            writeLine("@", segmentToSymMap.at(seg));
+            writeLine("A=M");
+            writeLine("A=A+D");
+            writeLine("D=M");
+            writeLine("@SP");
+            writeLine("M=M+1");
+            writeLine("A=M-1");
+            writeLine("M=D");
+        } else if (seg.compare("constant") == 0) {
+            writeLine("@", index);
+            writeLine("D=A");
+            writeLine("@SP");
+            writeLine("A=M");
+            writeLine("M=D");
+            writeLine("@SP");
+            writeLine("M=M+1");
+        } else if (seg.compare("temp") == 0) {
+            // TODO: What?
+            writeLine("@5");
+            writeLine("D=A");
+            writeLine("@", index);
+            writeLine("A=A+D");
+            writeLine("D=M");
+            writeLine("@SP");
+            writeLine("M=M+1");
+            writeLine("A=M-1");
+            writeLine("M=D");
+        } else if (seg.compare("pointer") == 0) {
+            string seg;
+            if (index == 0) {
+                seg = "THIS";
+            } else if (index == 1) {
+                seg = "THAT";
+            } else {
+                cout << "Invalid push to pointer " << index << endl;
+                // TODO: Raise exception
+            }
+            writeLine("@", seg);
+            writeLine("D=M");
+            writeLine("@SP");
+            writeLine("M=M+1");
+            writeLine("A=M-1");
+            writeLine("M=D");
+        } else if (seg.compare("static") == 0) {
+            writeLine("@", filename, ".", index);
+            writeLine("D=M");
+            writeLine("@SP");
+            writeLine("M=M+1");
+            writeLine("A=M-1");
+            writeLine("M=D");
+        } else {
+            cout << "Invalid segment pop " << seg << endl;
         }
-    else if (type == C_POP)
-        {
-            writeLine("// pop ", seg, " ", index);
-            if (segmentToSymMap.find(seg) != segmentToSymMap.end())
-                {
-                    writeLine("@", index);
-                    writeLine("D=A");
-                    writeLine("@", segmentToSymMap.at(seg));
-                    writeLine("A=M");
-                    writeLine("D=A+D");
-                    writeLine("@R13");
-                    writeLine("M=D");
-                    writeLine("@SP");
-                    writeLine("M=M-1");
-                    writeLine("A=M");
-                    writeLine("D=M");
-                    writeLine("@R13");
-                    writeLine("A=M");
-                    writeLine("M=D");
-                }
-            else if (seg.compare("temp") == 0)
-                {
-                    writeLine("@5");
-                    writeLine("D=A");
-                    writeLine("@", index);
-                    writeLine("D=A+D");
-                    writeLine("@R13");
-                    writeLine("M=D");
-                    writeLine("@SP");
-                    writeLine("M=M-1");
-                    writeLine("A=M");
-                    writeLine("D=M");
-                    writeLine("@R13");
-                    writeLine("A=M");
-                    writeLine("M=D");
-                }
-            else if (seg.compare("pointer") == 0)
-                {
-                    string segToken = (index == 0) ? "THIS" : "THAT";
-                    writeLine("@", segToken);
-                    writeLine("D=A");
-                    writeLine("@R13");
-                    writeLine("M=D");
-                    writeLine("@SP");
-                    writeLine("M=M-1");
-                    writeLine("A=M");
-                    writeLine("D=M");
-                    writeLine("@R13");
-                    writeLine("A=M");
-                    writeLine("M=D");
-                }
-                else if (seg.compare("static") == 0)
-                {
-                    writeLine("@SP");
-                    writeLine("M=M-1");
-                    writeLine("A=M");
-                    writeLine("D=M");
-                    writeLine("@", mFilename, ".", index);
-                    writeLine("M=D");
-                }
-                else
-                {
-                    cout << "Invalid segment pop " << seg << endl;
-                }
+    } else if (type == C_POP) {
+        writeLine("// pop ", seg, " ", index);
+        if (segmentToSymMap.find(seg) != segmentToSymMap.end()) {
+            writeLine("@", index);
+            writeLine("D=A");
+            writeLine("@", segmentToSymMap.at(seg));
+            writeLine("A=M");
+            writeLine("D=A+D");
+            writeLine("@R13");
+            writeLine("M=D");
+            writeLine("@SP");
+            writeLine("M=M-1");
+            writeLine("A=M");
+            writeLine("D=M");
+            writeLine("@R13");
+            writeLine("A=M");
+            writeLine("M=D");
+        } else if (seg.compare("temp") == 0) {
+            writeLine("@5");
+            writeLine("D=A");
+            writeLine("@", index);
+            writeLine("D=A+D");
+            writeLine("@R13");
+            writeLine("M=D");
+            writeLine("@SP");
+            writeLine("M=M-1");
+            writeLine("A=M");
+            writeLine("D=M");
+            writeLine("@R13");
+            writeLine("A=M");
+            writeLine("M=D");
+        } else if (seg.compare("pointer") == 0) {
+            string segToken = (index == 0) ? "THIS" : "THAT";
+            writeLine("@", segToken);
+            writeLine("D=A");
+            writeLine("@R13");
+            writeLine("M=D");
+            writeLine("@SP");
+            writeLine("M=M-1");
+            writeLine("A=M");
+            writeLine("D=M");
+            writeLine("@R13");
+            writeLine("A=M");
+            writeLine("M=D");
+        } else if (seg.compare("static") == 0) {
+            writeLine("@SP");
+            writeLine("M=M-1");
+            writeLine("A=M");
+            writeLine("D=M");
+            writeLine("@", filename, ".", index);
+            writeLine("M=D");
+        } else {
+            cout << "Invalid segment pop " << seg << endl;
         }
-        else
-        {
-            cout << "Only push/pop commands allowed here.";
-            // TODO: Exception
-        }
+    } else {
+        cout << "Only push/pop commands allowed here.";
+        // TODO: Exception
+    }
 }
 // TODO: Most of these don't need CommandType args
-void Writer::writeInit(CommandType type, string seg, int index)
-{
-    // REMOVE
-}
-void Writer::writeLabel(CommandType type, string label)
+
+void Writer::writeLabel(CommandType type, const string& label)
 {
     writeLine("// label ", label);
     writeLine("(", label, ")");
 }
-void Writer::writeGoto(CommandType type, string label)
+void Writer::writeGoto(CommandType type, const string& label)
 {
     writeLine("// goto ", label);
     writeLine("@", label);
     writeLine("0;JMP");
 }
-void Writer::writeIf(CommandType type, string label)
+void Writer::writeIf(CommandType type, const string& label)
 {
     writeLine("// if-goto ", label);
     writeLine("@SP");
@@ -344,10 +325,8 @@ void Writer::writeIf(CommandType type, string label)
     writeLine("D;JNE");
 }
 // TODO: CREATE moveSP(int num) for convenience here!
-void Writer::writeCall(string functionName, int numArgs)
+void Writer::writeCall(const string& functionName, int numArgs)
 {
-    counter++; // Only do when needed!
-
     // CALLING CONVENTION
     // VM function already accounts for:
     // - pushing number of args onto stack
@@ -428,11 +407,9 @@ void Writer::writeCall(string functionName, int numArgs)
     writeLine("0;JMP");
     // Create label to mark current addr in execution
     // Better way to get addr of current mem executing besides label?
-    // Make label based on global instruction counter (TODO: Remove this hack)
     writeLine("(", ret_label, ")");
-
 }
-void Writer::writeReturn(string seg, int index)
+void Writer::writeReturn(const string& seg, int index)
 {
     // TODO: Use segmentToSymMap instead of creating vector?
     // TODO: Verify that R13+ are general purpose registers
@@ -476,7 +453,7 @@ void Writer::writeReturn(string seg, int index)
     // in reference to LCL address
     writeLine("  // Restore all memory segments");
     int lcl_offset = 1; // offset from LCL address
-    for (std::string seg : vector<std::string>{"THAT", "THIS", "ARG", "LCL"}) {
+    for (std::string seg : vector<std::string> { "THAT", "THIS", "ARG", "LCL" }) {
         writeLine("@", lcl_offset);
         writeLine("D=A");
         writeLine("@LCL");
@@ -492,9 +469,8 @@ void Writer::writeReturn(string seg, int index)
 }
 
 // TODO: Add function to map -> line and check if exists already?
-void Writer::writeFunction(string functionName, int numLocals)
+void Writer::writeFunction(const string& functionName, int numLocals)
 {
-    counter++;
     writeLine("// function ", functionName, " ", numLocals);
     // Create label
     writeLine("(", functionName, ")");
@@ -522,7 +498,8 @@ void Writer::writeFunction(string functionName, int numLocals)
     writeLine("(END_INIT_LOCAL_", functionName, ")");
 }
 
-void Writer::writeBootstrap() {
+void Writer::writeBootstrap()
+{
     // Store 256 in D register
     writeLine("@256");
     writeLine("D=A");
@@ -534,4 +511,3 @@ void Writer::writeBootstrap() {
     writeLine("@END");
     writeLine("0;JMP");
 }
-

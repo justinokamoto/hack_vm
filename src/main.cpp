@@ -1,24 +1,23 @@
 #include "parser.hpp"
 #include "writer.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 using namespace std;
 
 // TODO: Better management of file handles
-int main(int argc, char **argv)
-{    
+int main(int argc, char** argv)
+{
     // TODO: Validate one is Main.vm!
     // TODO: Validate one has main function!
 
-	if (argc != 3)
-	{
-		cout << "Only 2 arguments allowed." << endl;
-		return 1;
-	}
+    if (argc != 3) {
+        cout << "Only 2 arguments allowed." << endl;
+        return 1;
+    }
 
     // TODO: [improvement] make more efficient
     std::vector<string> in_filenames;
@@ -55,69 +54,27 @@ int main(int argc, char **argv)
             return 1;
         }
 
-		Parser parser = Parser(inputfile);
+        Parser parser = Parser(inputfile);
 
-		string filename;
-		size_t found = string(argv[2]).find('.');
-		if (found != string::npos)
-		{
-			filename.append(argv[2], found);
-		}
-		else
-		{
-			filename.append(argv[2]);
-		}
-		writer.setFilename(filename);
-		while (true)
-		{
-			parser.advance();
-			parser.commandType();
-			if (!parser.hasMoreCommands())
-			{
-				break;
-			}
-			if (parser.commandType() == C_ARITHMETIC)
-			{
-				writer.writeArithemtic(parser.command());
-			}
-			else if (parser.commandType() == C_PUSH || parser.commandType() == C_POP)
-			{
-				writer.writePushPop(parser.commandType(), parser.arg1(), parser.arg2());
-			}
-			else if (parser.commandType() == C_LABEL)
-			{
-				writer.writeLabel(parser.commandType(), parser.arg1());
-			}
-			else if (parser.commandType() == C_IF)
-			{
-				writer.writeIf(parser.commandType(), parser.arg1());
-			}
-			else if (parser.commandType() == C_GOTO)
-			{
-				writer.writeGoto(parser.commandType(), parser.arg1());
-			}
-			else if (parser.commandType() == C_RETURN)
-			{
-                writer.writeReturn(parser.arg1(), parser.arg2());
-			}
-			else if (parser.commandType() == C_FUNCTION)
-			{
-				writer.writeFunction(parser.arg1(), parser.arg2());
-			}
-			else if (parser.commandType() == C_CALL)
-			{
-                writer.writeCall(parser.arg1(), parser.arg2());
-			}
-			else
-			{
-				// TODO: Exception
-				cout << "Unsupported command type." << endl;
-                return 1;
-			}
-		}
-		inputfile.close();
+        string filename;
+        size_t found = string(argv[2]).find('.');
+        if (found != string::npos) {
+            filename.append(argv[2], found);
+        } else {
+            filename.append(argv[2]);
+        }
+        writer.setFilename(filename);
+        while (true) {
+            parser.advance();
+            parser.commandType();
+            if (!parser.hasMoreCommands()) {
+                break;
+            }
+            writer.write(parser.commandType(), parser.command(), parser.arg1(), parser.arg2());
+        }
+        inputfile.close();
     }
 
     outfile.close();
-	return 0;
+    return 0;
 }

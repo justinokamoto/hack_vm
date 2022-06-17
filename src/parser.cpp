@@ -5,14 +5,16 @@
 
 using namespace std;
 
-Parser::Parser(std::ifstream &f) : file(f) {}
+Parser::Parser(std::ifstream& f)
+    : file(f)
+{
+}
 
 bool Parser::hasMoreCommands()
 {
-    if (file.eof())
-		{
-			return false;
-		}
+    if (file.eof()) {
+        return false;
+    }
     return true;
 }
 
@@ -33,9 +35,7 @@ void Parser::advance()
             return advance();
         else if (words.size() > 3) {
             // If 4 words exist (all non-comments) that's an error
-            if (words[1].compare("//") != 0 &&
-                words[2].compare("//") != 0 &&
-                words[3].compare("//") != 0)
+            if (words[1].compare("//") != 0 && words[2].compare("//") != 0 && words[3].compare("//") != 0)
                 cout << "Line \"" << l << "\" has too many args." << endl;
         }
         // Command is valid, now parse our args
@@ -67,43 +67,25 @@ CommandType Parser::commandType()
     CommandType c;
     if (mCommand.compare("push") == 0) {
         c = C_PUSH;
-    }
-    else if (mCommand.compare("pop") == 0) {
+    } else if (mCommand.compare("pop") == 0) {
         c = C_POP;
-    }
-    else if (mCommand.compare("add") == 0 ||
-             mCommand.compare("sub") == 0 ||
-             mCommand.compare("lt") == 0 ||
-             mCommand.compare("gt") == 0 ||
-             mCommand.compare("eq") == 0 ||
-             mCommand.compare("and") == 0 ||
-             mCommand.compare("or") == 0 ||
-             mCommand.compare("neg") == 0 ||
-             mCommand.compare("not") == 0) {
+    } else if (mCommand.compare("add") == 0 || mCommand.compare("sub") == 0 || mCommand.compare("lt") == 0 || mCommand.compare("gt") == 0 || mCommand.compare("eq") == 0 || mCommand.compare("and") == 0 || mCommand.compare("or") == 0 || mCommand.compare("neg") == 0 || mCommand.compare("not") == 0) {
         c = C_ARITHMETIC;
-    }
-    else if (mCommand.compare("function") == 0) {
+    } else if (mCommand.compare("function") == 0) {
         c = C_FUNCTION;
-    }
-    else if (mCommand.compare("return") == 0) {
+    } else if (mCommand.compare("return") == 0) {
         c = C_RETURN;
-    }
-    else if (mCommand.compare("call") == 0) {
+    } else if (mCommand.compare("call") == 0) {
         c = C_CALL;
-    }
-    else if (mCommand.compare("label") == 0) {
+    } else if (mCommand.compare("label") == 0) {
         c = C_LABEL;
-    }
-    else if (mCommand.compare("if-goto") == 0) {
+    } else if (mCommand.compare("if-goto") == 0) {
         c = C_IF;
-    }
-    else if (mCommand.compare("goto") == 0) {
+    } else if (mCommand.compare("goto") == 0) {
         c = C_GOTO;
-    }
-    else if (mCommand.compare("function") == 0) {
+    } else if (mCommand.compare("function") == 0) {
         c = C_FUNCTION;
-    }
-    else {
+    } else {
         c = C_GOTO;
         cout << "Unknown command type: " << mCommand << endl;
         // TODO: Exception
