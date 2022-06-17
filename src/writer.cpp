@@ -13,10 +13,31 @@ using namespace std;
 // - pushing to SP
 // - writing assembly (writeLine()) or something...
 
-Writer::Writer(ofstream &f)
-    : file(f)
-    , counter(0)
-{}
+Writer::Writer(ofstream &f) : file(f), counter(0) {}
+
+int Writer::retrieveCounter() {
+    counter++;
+    return counter++;
+}
+
+template<typename... Args>
+void Writer::writeLine(std::string arg, Args... args) {
+    // Write args as-is
+    file << arg;
+    ((file << args), ...);
+    if ((arg.rfind("//", 0) != 0) && // Not comment
+        (arg.rfind("  //", 0) != 0) && // Not indented comment
+        (arg.rfind("(", 0) != 0)) { // Not label
+        int offset = 48 - arg.length();
+        if (offset > 0)
+            file << std::string(offset, ' ');
+        // TODO: Fix offset
+        file << "// LINE_NUMBER: " << line_num;
+        line_num++;
+    }
+
+    file << std::endl;
+}
 
 void Writer::setFilename(string filename)
 {
@@ -501,5 +522,18 @@ void Writer::writeFunction(string functionName, int numLocals)
     writeLine("@BRANCH_INIT_LOCAL_", functionName);
     writeLine("D;JGT");
     writeLine("(END_INIT_LOCAL_", functionName, ")");
+}
+
+void Writer::writeBootstrap() {
+    // Store 256 in D register
+    writeLine("@256");
+    writeLine("D=A");
+    // Update SP location to 256
+    writeLine("@SP");
+    writeLine("M=D");
+    // Calls arg-less "Sys.init" function
+    writeCall("Sys.init", 0);
+    writeLine("@END");
+    writeLine("0;JMP");
 }
 

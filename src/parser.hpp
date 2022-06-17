@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-
+#include <fstream>
+    
 enum CommandType
 {
 	C_ARITHMETIC,

@@ -1,33 +1,13 @@
 // See what we can remove here
+#include "parser.hpp"
+#include "writer.hpp"
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
-#include <map>
 #include <string>
 #include <vector>
-#include <sstream>
-#include "parser.hpp"
-#include "writer.hpp"
-#include <execinfo.h>
 #include <filesystem>
-
-void print_trace (void)
-{
-  void *array[10];
-  char **strings;
-  int size, i;
-
-  size = backtrace (array, 10);
-  strings = backtrace_symbols (array, size);
-  if (strings != NULL)
-  {
-
-    printf ("Obtained %d stack frames.\n", size);
-    for (i = 0; i < size; i++)
-      printf ("%s\n", strings[i]);
-  }
-  free (strings);
-}
 
 using namespace std;
 
