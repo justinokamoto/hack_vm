@@ -1,11 +1,10 @@
-#ifndef WRITER_H_INCLUDED
-#define WRITER_H_INCLUDED
+#pragma once
 
 // #include <iostream> // Really?
 #include <sstream> // really?
 #include <fstream>
 #include <string>
-#include "command_type.hpp"
+#include "parser.hpp"
 
 class Writer
 {
@@ -73,5 +72,3 @@ public:
         writeLine("0;JMP");
     }
 };
-
-#endif
