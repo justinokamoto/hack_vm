@@ -1,10 +1,8 @@
-// See what we can remove here (copied from main.cpp)
-#include <string>
-#include <iostream>
-#include <map>
-#include <vector>
-#include <sstream>
 #include "writer.hpp"
+
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 using namespace std;
 

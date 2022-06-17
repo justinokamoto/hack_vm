@@ -1,13 +1,9 @@
 #pragma once
 
-#include "parser.hpp"
+#include "parser.hpp" // TODO: Pull out command type to prevent including full parser.hpp?
 
-#include <iostream>
-#include <sstream> // really?
-#include <fstream>
 #include <map>
 #include <string>
-
 
 class Writer
 {
