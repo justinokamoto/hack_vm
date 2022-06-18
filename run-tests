@@ -28,5 +28,6 @@ echo "Nested Call Test..."
 echo "Fibonacci Element Test..."
 ./build/vm_translator ./projects/08/FunctionCalls/FibonacciElement/ ./projects/08/FunctionCalls/FibonacciElement/FibonacciElement.asm
 ./tools/CPUEmulator.sh ./projects/08/FunctionCalls/FibonacciElement/FibonacciElement.tst
-
-# TODO: StaticsTest?
+echo "Statics Test..."
+./build/vm_translator  ./projects/08/FunctionCalls/StaticsTest/ ./projects/08/FunctionCalls/StaticsTest/StaticsTest.asm
+./tools/CPUEmulator.sh ./projects/08/FunctionCalls/StaticsTest/StaticsTest.tst

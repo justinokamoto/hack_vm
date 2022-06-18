@@ -20,9 +20,9 @@ int main(int argc, char** argv)
     }
 
     // TODO: [improvement] make more efficient
-    std::vector<string> in_filenames;
-    if (std::filesystem::is_directory(argv[1])) {
-        for (std::filesystem::path const& entry : std::filesystem::directory_iterator(argv[1])) {
+    std::vector<filesystem::path> in_filenames;
+    if (filesystem::is_directory(argv[1])) {
+        for (filesystem::path const& entry : filesystem::directory_iterator(argv[1])) {
             if (entry.extension().compare(".vm") == 0)
                 in_filenames.push_back(entry);
         }
@@ -55,15 +55,7 @@ int main(int argc, char** argv)
         }
 
         Parser parser = Parser(inputfile);
-
-        string filename;
-        size_t found = string(argv[2]).find('.');
-        if (found != string::npos) {
-            filename.append(argv[2], found);
-        } else {
-            filename.append(argv[2]);
-        }
-        writer.setFilename(filename);
+        writer.setFilename(in_filename.filename());
         while (true) {
             parser.advance();
             parser.commandType();
